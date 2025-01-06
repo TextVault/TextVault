@@ -1,16 +1,16 @@
 "use client";
 
-import { createAuthCookie } from "@/actions/auth.action";
 import { RegisterSchema } from "@/helpers/schemas";
 import { RegisterFormType } from "@/helpers/types";
 import { Button, Input } from "@nextui-org/react";
 import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export const Register = () => {
   const router = useRouter();
+  const [errorData, setErrors] = useState("");
 
   const initialValues: RegisterFormType = {
     name: "",
@@ -21,13 +21,31 @@ export const Register = () => {
 
   const handleRegister = useCallback(
     async (values: RegisterFormType) => {
-      // `values` contains name, email & password. You can use provider to register user
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: values.name,
+                    mail: values.email,
+                    password: values.password,
+                }),
+            });
 
-      await createAuthCookie();
-      router.replace("/");
+            const data = await response.json();
+            if (data.success) {
+                router.replace("/");
+            } else {
+                setErrors(data.message);
+            }
+        } catch (error) {
+            setErrors((error as Error).message);
+        }
     },
     [router]
-  );
+);
 
   return (
     <>
@@ -47,6 +65,7 @@ export const Register = () => {
                 isInvalid={!!errors.name && !!touched.name}
                 errorMessage={errors.name}
                 onChange={handleChange("name")}
+                autoComplete='off'
               />
               <Input
                 variant='bordered'
@@ -56,6 +75,8 @@ export const Register = () => {
                 isInvalid={!!errors.email && !!touched.email}
                 errorMessage={errors.email}
                 onChange={handleChange("email")}
+                autoComplete='off'
+
               />
               <Input
                 variant='bordered'
@@ -65,6 +86,8 @@ export const Register = () => {
                 isInvalid={!!errors.password && !!touched.password}
                 errorMessage={errors.password}
                 onChange={handleChange("password")}
+                autoComplete='off'
+
               />
               <Input
                 variant='bordered'
@@ -76,8 +99,12 @@ export const Register = () => {
                 }
                 errorMessage={errors.confirmPassword}
                 onChange={handleChange("confirmPassword")}
+                autoComplete='off'
               />
             </div>
+            {errorData && (
+              <div className='text-red-500 mb-4'>{errorData}</div>
+            )}
 
             <Button
               onPress={() => handleSubmit()}

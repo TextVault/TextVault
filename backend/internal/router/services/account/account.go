@@ -55,69 +55,7 @@ func New(log *slog.Logger, accountSaver AccountSaver, accountGetter AccountGette
 // If any other error occurs during authentication, it returns a 500 Internal Server Error status with an error message.
 // On successful authentication, it returns a 200 OK status with a JWT token in the response.
 func (s *Service) Login(c *fiber.Ctx) error {
-	const prefix = "internal.router.services.account.Login"
-
-	p := new(loginRequest)
-
-	if err := c.BodyParser(p); err != nil {
-		s.log.Error("Failed to parse login request", sl.Err(err))
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "email/username/password is required",
-		})
-	}
-
-	log := s.log.With(
-		slog.String("op", prefix),
-		slog.String("username", p.Username),
-	)
-
-	log.Info("Attempting to login user")
-
-	if len(p.Password) == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "password is required",
-		})
-	}
-
-	user, err := s.accountGetter.GetUser(c.Context(), p.Username)
-	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
-			s.log.Warn("Failed to find user")
-
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "user not found",
-			})
-		}
-
-		s.log.Error("Failed to get user", sl.Err(err))
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Internal server error",
-		})
-	}
-
-	if !passwordhash.Validate(p.Password, user.PasswordHash) {
-		s.log.Info("invalid credentials")
-
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid credentials",
-		})
-	}
-
-	log.Info("Successfully logged in user")
-
-	token, err := jwt.NewToken(user)
-	if err != nil {
-		s.log.Error("failed to generate token", sl.Err(err))
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to create token",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"token": token,
-	})
+	return s.handleLoginUser(c)
 }
 
 // Register creates a new user in the database and returns the user ID as a JSON response.
@@ -127,47 +65,7 @@ func (s *Service) Login(c *fiber.Ctx) error {
 // If any other error occurs during registration, it returns a 500 Internal Server Error status with an error message.
 // On successful registration, it returns a 200 OK status with the user ID in the response.
 func (s *Service) Register(c *fiber.Ctx) error {
-	const prefix = "internal.router.services.account.Register"
-
-	p := new(registerRequest)
-
-	if err := c.BodyParser(p); err != nil {
-		s.log.Error("Failed to parse register request", sl.Err(err))
-		return err
-	}
-
-	log := s.log.With(
-		slog.String("op", prefix),
-		slog.String("username", p.Username),
-	)
-
-	if len(p.Password) == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "password is required",
-		})
-	}
-
-	passwordHash, err := passwordhash.New(p.Password)
-	if err != nil {
-		log.Error("Failed to hash password", sl.Err(err))
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Internal server error",
-		})
-	}
-
-	id, err := s.accountSaver.SaveUser(c.Context(), p.Username, p.Mail, passwordHash)
-	if err != nil {
-		log.Error("failed to save user", sl.Err(err))
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to save user",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"id": id,
-	})
+	return s.handleRegister(c)
 }
 
 // GetUserPastes retrieves all pastes created by a specific user from the database.
@@ -230,4 +128,123 @@ func (s *Service) handleGetPastesError(c *fiber.Ctx, err error, log *slog.Logger
 			"error": "Internal server error",
 		})
 	}
+}
+
+func (s *Service) handleRegister(c *fiber.Ctx) error {
+	const prefix = "internal.router.services.account.Register"
+
+	p := new(registerRequest)
+
+	if err := c.BodyParser(p); err != nil {
+		s.log.Error("Failed to parse register request", sl.Err(err))
+		return err
+	}
+
+	log := s.log.With(
+		slog.String("op", prefix),
+		slog.String("username", p.Username),
+	)
+
+	log.Info("Attempting to register user")
+
+	if len(p.Password) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "password is required",
+		})
+	}
+
+	passwordHash, err := passwordhash.New(p.Password)
+	if err != nil {
+		log.Error("Failed to hash password", sl.Err(err))
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Internal server error",
+		})
+	}
+
+	id, err := s.accountSaver.SaveUser(c.Context(), p.Username, p.Mail, passwordHash)
+	if err != nil {
+		log.Error("failed to save user", sl.Err(err))
+
+		if errors.Is(err, storage.ErrUserAlreadyExists) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "user already exists",
+			})
+		}
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "failed to save user",
+		})
+	}
+
+	log.Info("Successfully registered user", slog.Int64("user_id", id))
+
+	return s.handleLoginUser(c)
+}
+
+func (s *Service) handleLoginUser(c *fiber.Ctx) error {
+	const prefix = "internal.router.services.account.Login"
+
+	p := new(loginRequest)
+
+	if err := c.BodyParser(p); err != nil {
+		s.log.Error("Failed to parse login request", sl.Err(err))
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "email/username/password is required",
+		})
+	}
+
+	log := s.log.With(
+		slog.String("op", prefix),
+		slog.String("username", p.Username),
+	)
+
+	log.Info("Attempting to login user")
+
+	if len(p.Password) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "password is required",
+		})
+	}
+
+	user, err := s.accountGetter.GetUser(c.Context(), p.Username)
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			s.log.Warn("Failed to find user")
+
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "user not found",
+			})
+		}
+
+		s.log.Error("Failed to get user", sl.Err(err))
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Internal server error",
+		})
+	}
+
+	if !passwordhash.Validate(p.Password, user.PasswordHash) {
+		s.log.Info("invalid credentials")
+
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "invalid credentials",
+		})
+	}
+
+	log.Info("Successfully logged in user")
+
+	token, err := jwt.NewToken(user)
+	if err != nil {
+		s.log.Error("failed to generate token", sl.Err(err))
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "failed to create token",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"username": user.Username,
+		"token":    token,
+	})
 }

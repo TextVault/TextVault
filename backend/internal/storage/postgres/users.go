@@ -4,6 +4,7 @@ import (
 	"TextVault/internal/storage"
 	"TextVault/internal/storage/models"
 	"context"
+	"errors"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -42,7 +43,7 @@ func (s *Storage) GetUser(ctx context.Context, username string) (models.User, er
 	var user models.User
 	err := pgxscan.Get(ctx, s.conn, &user, stmt, username)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return models.User{}, storage.ErrUserNotFound
 		}
 

@@ -16,6 +16,11 @@ export const getUsername = async () => {
     return username;
 };
 
+export const getAuthCookie = async () => {
+    const token = (await cookies()).get("token")?.value;
+    return token;
+};
+
 export const deleteAuthCookie = async () => {
     (await cookies()).delete("token");
     (await cookies()).delete("username");

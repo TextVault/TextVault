@@ -8,9 +8,10 @@ import { Select, SelectItem } from "@nextui-org/select";
 import { Input } from "@nextui-org/input";
 import { useTheme } from "next-themes";
 
-import { siteConfig } from "@/config/site";
-import { title, subtitle } from "@/components/primitives";
+import { title } from "@/components/primitives";
 import { Skeleton } from "@nextui-org/skeleton";
+
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [language, setLanguage] = useState('plaintext');
@@ -18,6 +19,8 @@ export default function Home() {
   const [code, setCode] = useState('');
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,9 +52,34 @@ export default function Home() {
 
     console.log("Generated JSON:", JSON.stringify(jsonData, null, 2));
 
+    try {
+      const response = await fetch('/api/pastes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: jsonData.title,
+          language: jsonData.language,
+          paste: jsonData.content
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("Paste created:", data);
+
+      if (data.success) {
+        router.replace(`/view/${data.result}`);
+    }
+    } catch (error) {
+      console.error("Error creating paste:", error);
+
+    }
+
   };
+
   const handleEditorChange = (value: any) => {
-    console.log(value);
     setCode(value);
   };
 

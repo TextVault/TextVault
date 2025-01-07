@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         const result = await registerUser(username, mail, password);
         (await cookies()).set("token", result.token);
         (await cookies()).set("username", result.username);
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true }, {status: 200});
     } catch (error) {
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 400 });
     }

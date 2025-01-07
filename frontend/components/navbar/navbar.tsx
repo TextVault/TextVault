@@ -55,7 +55,8 @@ export const Navbar = () => {
     const authStatus = await checkAuthentication(); // Await the result
     setAuthenticated(authStatus); // Update state with the new authentication status
     router.replace("/login");
-}, [pathname]);
+  }, [pathname]);
+
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -114,7 +115,7 @@ export const Navbar = () => {
                 <p>Signed in as</p>
                 <p>{username}</p>
               </DropdownItem>
-              <DropdownItem key='settings'>My pastes</DropdownItem>
+              <DropdownItem key='settings' href='/my'>My pastes</DropdownItem>
               <DropdownItem
                 key='logout'
                 color='danger'

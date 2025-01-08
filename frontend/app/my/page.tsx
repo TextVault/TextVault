@@ -20,7 +20,7 @@ const COLUMNS = [
     { name: "ACTIONS", uid: "actions" },
 ];
 
-export const DeleteIcon = () => {
+const DeleteIcon = () => {
     return (
         <svg
             aria-hidden="true"

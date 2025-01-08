@@ -7,6 +7,7 @@ import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
 
 export const Register = () => {
   const router = useRouter();
@@ -21,31 +22,32 @@ export const Register = () => {
 
   const handleRegister = useCallback(
     async (values: RegisterFormType) => {
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: values.name,
-                    mail: values.email,
-                    password: values.password,
-                }),
-            });
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: values.name,
+            mail: values.email,
+            password: values.password,
+          }),
+        });
 
-            const data = await response.json();
-            if (data.success) {
-                router.replace("/");
-            } else {
-                setErrors(data.message);
-            }
-        } catch (error) {
-            setErrors((error as Error).message);
+        const data = await response.json();
+        if (data.success) {
+          toast.success('Registration successful');
+          router.replace("/");
+        } else {
+          toast.error(data.message);
         }
+      } catch (error) {
+        toast.error((error as Error).message);
+      }
     },
     [router]
-);
+  );
 
   return (
     <>
@@ -102,9 +104,6 @@ export const Register = () => {
                 autoComplete='off'
               />
             </div>
-            {errorData && (
-              <div className='text-red-500 mb-4'>{errorData}</div>
-            )}
 
             <Button
               onPress={() => handleSubmit()}

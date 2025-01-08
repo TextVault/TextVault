@@ -7,10 +7,10 @@ import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
 
 export const Login = () => {
     const router = useRouter();
-    const [errorData, setErrors] = useState("");
 
     const initialValues: LoginFormType = {
         username: "",
@@ -33,12 +33,14 @@ export const Login = () => {
 
                 const data = await response.json();
                 if (data.success) {
+                    toast.success('Login successful');
+
                     router.replace("/");
                 } else {
-                    setErrors(data.message);
+                    toast.error(data.message);
                 }
             } catch (error) {
-                setErrors((error as Error).message);
+                toast.error((error as Error).message);
             }
         },
         [router]
@@ -78,10 +80,6 @@ export const Login = () => {
 
                             />
                         </div>
-
-                        {errorData && (
-                            <div className='text-red-500 mb-4'>{errorData}</div>
-                        )}
 
                         <Button
                             onPress={() => handleSubmit()}

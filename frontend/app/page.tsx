@@ -12,6 +12,8 @@ import { title } from "@/components/primitives";
 import { Skeleton } from "@nextui-org/skeleton";
 
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { Languages } from '@/types/languages';
 
 export default function Home() {
   const [language, setLanguage] = useState('plaintext');
@@ -30,19 +32,6 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  const programmingLanguages = [
-    { value: 'plaintext', label: 'Plain Text' },
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' },
-    { value: 'cpp', label: 'C++' },
-    { value: 'csharp', label: 'C#' },
-    { value: 'php', label: 'PHP' },
-    { value: 'ruby', label: 'Ruby' },
-    { value: 'go', label: 'Go' },
-    { value: 'rust', label: 'Rust' },
-  ];
-
   const handleSubmit = async () => {
     const jsonData = {
       title: titleText,
@@ -50,7 +39,6 @@ export default function Home() {
       content: code,
     };
 
-    console.log("Generated JSON:", JSON.stringify(jsonData, null, 2));
 
     try {
       const response = await fetch('/api/pastes', {
@@ -67,14 +55,13 @@ export default function Home() {
 
       const data = await response.json();
 
-      console.log("Paste created:", data);
 
       if (data.success) {
+        toast.success("Paste created successfully");
         router.replace(`/view/${data.result}`);
     }
     } catch (error) {
-      console.error("Error creating paste:", error);
-
+      toast.error("Failed to create paste");
     }
 
   };
@@ -107,7 +94,7 @@ export default function Home() {
               onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setLanguage(e.target.value)}
               className="w-48"
             >
-              {programmingLanguages.map((lang) => (
+              {Languages.map((lang) => (
                 <SelectItem key={lang.value} value={lang.value}>
                   {lang.label}
                 </SelectItem>

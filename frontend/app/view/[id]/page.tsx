@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 
 import { title } from "@/components/primitives";
 import { Skeleton } from "@nextui-org/skeleton";
+import toast from 'react-hot-toast';
 
 export default function Page() {
     const [code, setCode] = useState('');
@@ -21,33 +22,25 @@ export default function Page() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log('test');
-                const response = await fetch('/api/view', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        id: params.id,
-                    }),
+                const response = await fetch(`/api/view?id=${params.id}`, {
+                    method: 'GET',
                 });
 
                 const data = await response.json();
 
-                console.log("Paste created:", data);
                 if (data.success) {
-                    console.log(data);
                     setLoading(false);
                     setCode(data.result.content);
                     setLanguage(data.result.language);
                     setTitle(data.result.title);
+                } else {
+                    toast.error(`Failed to load paste: ${data.message}`);
                 }
             } catch (error) {
-                console.error("Error creating paste:", error);
-
+                toast.error(`Failed to load paste: ${(error as Error).message}`);
             }
         }
-        console.log(params);
+
         fetchData();
     }, []);
 

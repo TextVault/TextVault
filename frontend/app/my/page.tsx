@@ -79,6 +79,8 @@ export default function Profile() {
     const ROWS_PER_PAGE = 10;
 
     const paginatedItems = useMemo(() => {
+        if(pastes == null) return [];
+
         const start = (page - 1) * ROWS_PER_PAGE;
         const end = start + ROWS_PER_PAGE;
         return pastes.slice(start, end);
@@ -200,7 +202,7 @@ export default function Profile() {
                                     showShadow
                                     color="primary"
                                     page={page}
-                                    total={Math.ceil(pastes.length / ROWS_PER_PAGE)}
+                                    total={pastes == null ? 1 : Math.ceil(pastes.length / ROWS_PER_PAGE)}
                                     onChange={(page) => setPage(page)}
                                 />
                             </div>
@@ -217,15 +219,19 @@ export default function Profile() {
                                 </TableColumn>
                             )}
                         </TableHeader>
-                        <TableBody items={paginatedItems}>
-                            {(item) => (
-                                <TableRow key={item.ID}>
-                                    {(columnKey) => (
-                                        <TableCell>{renderCell(item, columnKey)}</TableCell>
-                                    )}
-                                </TableRow>
-                            )}
-                        </TableBody>
+                        {paginatedItems.length === 0 ? (
+                            <TableBody emptyContent={"You don't have any pastes."}>{[]}</TableBody>
+                        ) : (
+                            <TableBody items={paginatedItems}>
+                                {(item) => (
+                                    <TableRow key={item.ID}>
+                                        {(columnKey) => (
+                                            <TableCell>{renderCell(item, columnKey)}</TableCell>
+                                        )}
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        )}
                     </Table>
                 </div>
             </main>

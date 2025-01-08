@@ -7,7 +7,7 @@ import Editor from '@monaco-editor/react';
 import { useTheme } from "next-themes";
 
 import { title } from "@/components/primitives";
-import { Skeleton } from "@nextui-org/skeleton";
+import { CircularProgress } from "@nextui-org/react";
 import toast from 'react-hot-toast';
 
 export default function Page() {
@@ -16,7 +16,7 @@ export default function Page() {
     const [loading, setLoading] = useState(true);
 
     const [language, setLanguage] = useState('plaintext');
-    const [titleText, setTitle] = useState('Loading...');
+    const [titleText, setTitle] = useState('L');
     const params = useParams<{ id: string }>();
 
     useEffect(() => {
@@ -44,6 +44,14 @@ export default function Page() {
         fetchData();
     }, []);
 
+    if (loading) {
+        return (
+            <section className="flex flex-col items-center justify-center gap-4">
+                <CircularProgress size="lg" color="primary"></CircularProgress>
+            </section>
+        );
+    }
+
     return (
         <section className="flex flex-col items-center justify-center gap-4">
             <div className="inline-block max-w-xl text-center justify-center">
@@ -56,9 +64,6 @@ export default function Page() {
                     </div>
 
                     <div className="relative w-full h-96">
-                        { loading && (
-                            <Skeleton className="absolute inset-0 w-full h-full rounded-lg border border-gray-500" />
-                        )} 
 
                         <Editor
                             className='w-full dark:bg-[#1e1e1e] light:bg-default-100 h-96 p-4 font-mono rounded-lg border border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none'

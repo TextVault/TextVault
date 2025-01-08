@@ -32,7 +32,7 @@ func (s *Storage) Ping(ctx context.Context) error {
 }
 
 func (s *Storage) Set(ctx context.Context, key string, value string) error {
-	return s.rdb.Set(ctx, key, value, time.Hour*12).Err()
+	return s.rdb.Set(ctx, key, value, time.Minute*5).Err()
 }
 
 func (s *Storage) Get(ctx context.Context, key string) (string, error) {

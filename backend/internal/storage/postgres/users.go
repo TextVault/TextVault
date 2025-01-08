@@ -19,10 +19,16 @@ func (s *Storage) SaveUser(ctx context.Context, username, email, password string
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
+	// Check user mail exists
+	_, err := s.GetUser(ctx, email)
+	if err == nil {
+		return 0, storage.ErrUserAlreadyExists
+	}
+
 	stmt := "INSERT INTO Users (username, email, passwordhash) VALUES ($1, $2, $3) RETURNING id"
 
 	var id int64
-	err := s.conn.QueryRow(ctx, stmt, username, email, password).Scan(&id)
+	err = s.conn.QueryRow(ctx, stmt, username, email, password).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +63,7 @@ func (s *Storage) GetUserPastes(ctx context.Context, userID int64) ([]models.Pas
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	stmt := "SELECT ID, title, hash, language, authorid FROM Pastes WHERE authorid = $1"
+	stmt := "SELECT * FROM Pastes WHERE authorid = $1"
 
 	var pastes []models.Paste
 	err := pgxscan.Select(ctx, s.conn, &pastes, stmt, userID)

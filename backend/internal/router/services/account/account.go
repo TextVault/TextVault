@@ -162,6 +162,15 @@ func (s *Service) handleRegister(c *fiber.Ctx) error {
 		})
 	}
 
+	_, err = s.accountGetter.GetUser(c.Context(), p.Username)
+	if err == nil {
+		log.Warn("User already exists")
+
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "user already exists",
+		})
+	}
+
 	id, err := s.accountSaver.SaveUser(c.Context(), p.Username, p.Mail, passwordHash)
 	if err != nil {
 		log.Error("failed to save user", sl.Err(err))

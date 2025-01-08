@@ -178,15 +178,11 @@ func (s *Service) GetPaste(c *fiber.Ctx) error {
 
 	paste, err := s.pasteGetter.GetPaste(c.Context(), hash)
 	if err != nil {
-		if errors.Is(err, storage.ErrPasteNotFound) {
-			s.log.Warn("Failed to find paste")
+		s.log.Warn("Failed to find paste")
 
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"error": "paste not found",
-			})
-		}
-
-		return s.handleInternalServerError(c, err, log)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "paste not found",
+		})
 	}
 
 	content, err := s.pasteProvider.GetPasteContent(c.Context(), hash)

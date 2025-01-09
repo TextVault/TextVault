@@ -86,7 +86,8 @@ func (s *Service) SavePaste(c *fiber.Ctx) error {
 		s.log.Error("Failed to parse save request", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "content is required",
+			"error_message": "content is required",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -123,7 +124,8 @@ func (s *Service) SavePaste(c *fiber.Ctx) error {
 		log.Error("Failed to save paste", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to save paste",
+			"error_message": "failed to save paste",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -132,14 +134,16 @@ func (s *Service) SavePaste(c *fiber.Ctx) error {
 		log.Error("Failed to upload paste", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to upload paste",
+			"error_message": "failed to upload paste",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
 	log.Info("Paste saved successfully", slog.String("id", id))
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"id": id,
+		"id":     id,
+		"status": fiber.StatusOK,
 	})
 }
 
@@ -173,6 +177,7 @@ func (s *Service) GetPaste(c *fiber.Ctx) error {
 			"title":    pasteResponse.Title,
 			"language": pasteResponse.Language,
 			"content":  pasteResponse.Content,
+			"status":   fiber.StatusOK,
 		})
 	}
 
@@ -181,7 +186,8 @@ func (s *Service) GetPaste(c *fiber.Ctx) error {
 		s.log.Warn("Failed to find paste")
 
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "paste not found",
+			"error_message": "paste not found",
+			"status":        fiber.StatusNotFound,
 		})
 	}
 
@@ -190,7 +196,8 @@ func (s *Service) GetPaste(c *fiber.Ctx) error {
 		log.Error("Failed to get paste content", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to get paste",
+			"error_message": "failed to get paste",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -217,6 +224,7 @@ func (s *Service) GetPaste(c *fiber.Ctx) error {
 		"title":    pasteResponse.Title,
 		"language": pasteResponse.Language,
 		"content":  pasteResponse.Content,
+		"status":   fiber.StatusOK,
 	})
 }
 
@@ -257,7 +265,8 @@ func (s *Service) DeletePaste(c *fiber.Ctx) error {
 			s.log.Warn("Failed to find paste")
 
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "paste not found",
+				"error_message": "Paste not found",
+				"status":        fiber.StatusUnauthorized,
 			})
 		}
 
@@ -266,7 +275,8 @@ func (s *Service) DeletePaste(c *fiber.Ctx) error {
 
 	if paste.AuthorID != claims.ID {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": "you are not owner of this paste",
+			"error_message": "You are not owner of this paste",
+			"status":        fiber.StatusForbidden,
 		})
 	}
 
@@ -276,7 +286,8 @@ func (s *Service) DeletePaste(c *fiber.Ctx) error {
 		log.Error("Failed to delete paste", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to delete paste",
+			"error_message": "Failed to delete paste",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -286,7 +297,8 @@ func (s *Service) DeletePaste(c *fiber.Ctx) error {
 		log.Error("Failed to delete paste from s3 storage", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to delete paste",
+			"error_message": "Failed to delete paste",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -301,12 +313,14 @@ func (s *Service) handleInternalServerError(c *fiber.Ctx, err error, log *slog.L
 	log.Error("Internal server error", sl.Err(err))
 
 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-		"error": "Internal server error",
+		"error_message": "Internal server error",
+		"status":        fiber.StatusInternalServerError,
 	})
 }
 
 func (s *Service) handleUnauthorizedResponse(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"error": "unauthorized",
+		"error_message": "Unauthorized",
+		"status":        fiber.StatusUnauthorized,
 	})
 }

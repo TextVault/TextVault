@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { LoginSchema } from "@/helpers/schemas";
 import { LoginFormType } from "@/helpers/types";
@@ -6,8 +6,9 @@ import { Button, Input } from "@nextui-org/react";
 import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
+import { loginUser } from "@/actions/auth.action";
 
 export const Login = () => {
     const router = useRouter();
@@ -17,35 +18,33 @@ export const Login = () => {
         password: "",
     };
 
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem('token') !== null;
+
+        if (isLoggedIn) {
+            router.replace("/my");
+            return;
+        }
+
+    }, [router]);
+
     const handleLogin = useCallback(
         async (values: LoginFormType) => {
             try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: values.username,
-                        password: values.password,
-                    }),
-                });
+                const response = await loginUser(values.username, values.password);
 
-                const data = await response.json();
-                if (data.success) {
-                    toast.success('Login successful');
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('username', response.username);
 
-                    router.replace("/");
-                } else {
-                    toast.error(data.message);
-                }
+                toast.success('Login successful');
+                router.replace("/");
+
             } catch (error) {
                 toast.error((error as Error).message);
             }
         },
         [router]
     );
-
 
     return (
         <>

@@ -9,11 +9,8 @@ import clsx from "clsx";
 import {
   Navbar as NextUINavbar,
   NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
   NavbarBrand,
   NavbarItem,
-  NavbarMenuItem,
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
@@ -31,12 +28,6 @@ import { link as linkStyles } from "@nextui-org/theme";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { GithubIcon, Logo } from "@/components/icons";
-import {
-  isAuthenticated,
-  getUsername,
-  deleteAuthCookie
-} from "@/actions/auth.action";
-
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -48,11 +39,11 @@ export const Navbar: React.FC = () => {
   });
 
   // Memoized authentication check
-  const checkAuthentication = useCallback(async () => {
+  const checkAuthentication = useCallback(() => {
     try {
-      const isAuth = await isAuthenticated();
+      const isAuth = localStorage.getItem('token') !== null;
       if (isAuth) {
-        const username = await getUsername();
+        const username = localStorage.getItem('username');
         setAuthState({ authenticated: true, username: username as string });
       } else {
         setAuthState({ authenticated: false, username: null });
@@ -70,9 +61,11 @@ export const Navbar: React.FC = () => {
   }, [pathname, checkAuthentication]);
 
   // Memoized logout handler
-  const handleLogout = useCallback(async () => {
-    await deleteAuthCookie();
-    await checkAuthentication();
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+
+    checkAuthentication();
     router.replace("/login");
   }, [checkAuthentication, router]);
 
@@ -89,7 +82,7 @@ export const Navbar: React.FC = () => {
           <p>Signed in as</p>
           <p>{authState.username}</p>
         </DropdownItem>
-        <DropdownItem key='settings' href='/my'>My pastes</DropdownItem>
+        <DropdownItem key='my_pastes' href='/my'>My pastes</DropdownItem>
         <DropdownItem
           key='logout'
           color='danger'

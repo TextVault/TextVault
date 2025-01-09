@@ -1,8 +1,7 @@
 "use server";
 
-import { getAuthCookie } from './auth.action';
 import { request } from '@/services/requestService';
 
-export const fetchUserPastes = async () => {
-    return request.get('/account/pastes', { 'Authorization': `Bearer ${await getAuthCookie()}` });
+export const fetchUserPastes = async (token?: string) => {
+    return request.get('/account/pastes', { 'Authorization': `Bearer ${token}` });
 }

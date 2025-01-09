@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { RegisterSchema } from "@/helpers/schemas";
 import { RegisterFormType } from "@/helpers/types";
@@ -6,12 +6,12 @@ import { Button, Input } from "@nextui-org/react";
 import { Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
+import { registerUser } from "@/actions/auth.action";
 
 export const Register = () => {
   const router = useRouter();
-  const [errorData, setErrors] = useState("");
 
   const initialValues: RegisterFormType = {
     name: "",
@@ -20,28 +20,32 @@ export const Register = () => {
     confirmPassword: "",
   };
 
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('token') !== null;
+
+    if (isLoggedIn) {
+        router.replace("/my");
+        return;
+    }
+
+}, [router]);
+
   const handleRegister = useCallback(
     async (values: RegisterFormType) => {
       try {
-        const response = await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: values.name,
-            mail: values.email,
-            password: values.password,
-          }),
-        });
+        const response = await registerUser(
+          values.name,
+          values.email,
+          values.password
+        );
 
-        const data = await response.json();
-        if (data.success) {
-          toast.success('Registration successful');
-          router.replace("/");
-        } else {
-          toast.error(data.message);
-        }
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("username", response.username);
+
+        toast.success("Registration successful");
+
+        router.replace("/");
+        
       } catch (error) {
         toast.error((error as Error).message);
       }

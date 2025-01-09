@@ -2,10 +2,11 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, Tooltip, Button, Skeleton, CircularProgress } from "@nextui-org/react";
-import { isAuthenticated } from "@/actions/auth.action";
 import { title } from "@/components/primitives";
 import toast from 'react-hot-toast';
 import { Languages } from "@/types/languages";
+import { fetchUserPastes } from "@/actions/account.action";
+import { deletePaste } from "@/actions/paste.action";
 
 interface Paste {
     ID: string;
@@ -79,7 +80,7 @@ export default function Profile() {
     const ROWS_PER_PAGE = 10;
 
     const paginatedItems = useMemo(() => {
-        if(pastes == null) return [];
+        if (pastes == null) return [];
 
         const start = (page - 1) * ROWS_PER_PAGE;
         const end = start + ROWS_PER_PAGE;
@@ -88,21 +89,19 @@ export default function Profile() {
 
     const fetchPastes = useCallback(async () => {
         try {
-            const response = await fetch('/api/profile');
-            const data = await response.json();
+            const result = await fetchUserPastes((localStorage.getItem('token') as string));
 
-            if (data.success) {
-                setPastes(data.result.pastes);
-                setLoading(false);
-            }
+            setPastes(result.pastes);
+            setLoading(false);
+
         } catch (error) {
             setLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        const checkAndFetchData = async () => {
-            const isLoggedIn = await isAuthenticated();
+        const checkAndFetchData = () => {
+            const isLoggedIn = localStorage.getItem('token') !== null;
 
             if (!isLoggedIn) {
                 router.replace("/login");
@@ -118,21 +117,12 @@ export default function Profile() {
     const handleDeletePaste = useCallback(
         async (pasteId: string) => {
             try {
-                const response = await fetch(`/api/pastes?id=${pasteId}`, {
-                    method: 'DELETE',
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    toast.success('Paste success deleted', {
-                        position: 'bottom-right'
-                    });
-                    await fetchPastes();
-                }
+                await deletePaste(pasteId, (localStorage.getItem('token') as string));
+                toast.success('Paste success deleted');
+                await fetchPastes();
+                
             } catch (error) {
-                toast.error(`Failed to delete paste: ${(error as Error).message || JSON.stringify(error)}`, {
-                    position: 'bottom-right'
-                });
+                toast.error(`Failed to delete paste: ${(error as Error).message || JSON.stringify(error)}`);
             }
 
         }, [router])

@@ -1,4 +1,4 @@
-import {ofetch} from "ofetch";
+import { ofetch } from "ofetch";
 import { FetchError } from "ofetch";
 
 const baseURL = process.env.TEXTVAULT_BACKEND_URL;
@@ -45,7 +45,7 @@ class RequestService {
         if (!error.data) {
             throw new Error('Service unavailable')
         }
-        throw new Error(error.data.error || error.message || 'Failed to load data')
+        throw new Error(error.data.error_message || error.message || 'Failed to load data')
     }
 }
 

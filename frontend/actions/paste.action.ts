@@ -1,16 +1,15 @@
-import { isAuthenticated, getAuthCookie } from './auth.action'
 import { request } from '@/services/requestService';
 
 export const getPaste = async (pasteId: string) => {
     return request.get(`/pastes/${pasteId}`, {});
 }
 
-export const createPaste = async (title: string, language: string, paste: string) => {
+export const createPaste = async (title: string, language: string, paste: string, token?: string) => {
     let headers = {};
 
-    if ((await isAuthenticated())) {
+    if (token !== undefined) {
         headers = {
-            'Authorization': `Bearer ${await getAuthCookie()}`
+            'Authorization': `Bearer ${token}`
         }
     }
 
@@ -21,9 +20,9 @@ export const fetchPasteData = async (pasteId: string) => {
     return request.get(`/pastes/${pasteId}`, {});
 }
 
-export const deletePaste = async (pasteId: string) => {
+export const deletePaste = async (pasteId: string, token?: string) => {
     let headers = {
-        'Authorization': `Bearer ${await getAuthCookie()}`
+        'Authorization': `Bearer ${token}`
     }
 
     return request.delete(`/pastes/${pasteId}`, headers);

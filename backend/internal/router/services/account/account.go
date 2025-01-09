@@ -111,7 +111,8 @@ func (s *Service) GetUserPastes(c *fiber.Ctx) error {
 // The response body contains a JSON object with a single key-value pair, where the key is "error" and the value is "unauthorized".
 func (s *Service) unauthorizedResponse(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"error": "unauthorized",
+		"error_message": "Unauthorized",
+		"status":        fiber.StatusUnauthorized,
 	})
 }
 
@@ -120,12 +121,14 @@ func (s *Service) handleGetPastesError(c *fiber.Ctx, err error, log *slog.Logger
 	case errors.Is(err, storage.ErrUserDontHavePastes):
 		log.Warn("Failed to find pastes")
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "user doesn't have pastes",
+			"error_message": "User doesn't have pastes",
+			"status":        fiber.StatusNotFound,
 		})
 	default:
 		log.Error("Failed to get pastes", sl.Err(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Internal server error",
+			"error_message": "Internal server error",
+			"status":        fiber.StatusInternalServerError,
 		})
 	}
 }
@@ -149,7 +152,8 @@ func (s *Service) handleRegister(c *fiber.Ctx) error {
 
 	if len(p.Password) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "password is required",
+			"error_message": "Password is required",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -158,7 +162,8 @@ func (s *Service) handleRegister(c *fiber.Ctx) error {
 		log.Error("Failed to hash password", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Internal server error",
+			"error_message": "Internal server error",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -167,7 +172,8 @@ func (s *Service) handleRegister(c *fiber.Ctx) error {
 		log.Warn("User already exists")
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "user already exists",
+			"error_message": "User already exists",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -177,12 +183,14 @@ func (s *Service) handleRegister(c *fiber.Ctx) error {
 
 		if errors.Is(err, storage.ErrUserAlreadyExists) {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "user already exists",
+				"error_message": "User already exists",
+				"status":        fiber.StatusBadRequest,
 			})
 		}
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to save user",
+			"error_message": "Failed to save user",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -200,7 +208,8 @@ func (s *Service) handleLoginUser(c *fiber.Ctx) error {
 		s.log.Error("Failed to parse login request", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "email/username/password is required",
+			"error_message": "email/username/password is required",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -213,7 +222,8 @@ func (s *Service) handleLoginUser(c *fiber.Ctx) error {
 
 	if len(p.Password) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "password is required",
+			"error_message": "Password is required",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
@@ -223,13 +233,15 @@ func (s *Service) handleLoginUser(c *fiber.Ctx) error {
 			s.log.Warn("Failed to find user")
 
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "user not found",
+				"error_message": "User not found",
+				"status":        fiber.StatusUnauthorized,
 			})
 		}
 
 		s.log.Error("Failed to get user", sl.Err(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Internal server error",
+			"error_message": "Internal server error",
+			"status":        fiber.StatusInternalServerError,
 		})
 	}
 
@@ -237,7 +249,8 @@ func (s *Service) handleLoginUser(c *fiber.Ctx) error {
 		s.log.Info("invalid credentials")
 
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "invalid credentials",
+			"error_message": "Invalid username/password combination",
+			"status":        fiber.StatusUnauthorized,
 		})
 	}
 
@@ -248,12 +261,14 @@ func (s *Service) handleLoginUser(c *fiber.Ctx) error {
 		s.log.Error("failed to generate token", sl.Err(err))
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "failed to create token",
+			"error_message": "Failed to create token",
+			"status":        fiber.StatusBadRequest,
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"username": user.Username,
 		"token":    token,
+		"status":   fiber.StatusOK,
 	})
 }

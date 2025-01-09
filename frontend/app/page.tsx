@@ -14,6 +14,7 @@ import { Skeleton } from "@nextui-org/skeleton";
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Languages } from '@/types/languages';
+import { createPaste } from '@/actions/paste.action';
 
 export default function Home() {
   const [language, setLanguage] = useState('plaintext');
@@ -33,33 +34,15 @@ export default function Home() {
   }, []);
 
   const handleSubmit = async () => {
-    const jsonData = {
-      title: titleText,
-      language: language,
-      content: code,
-    };
-
-
     try {
-      const response = await fetch('/api/pastes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: jsonData.title,
-          language: jsonData.language,
-          paste: jsonData.content
-        }),
-      });
+      let token: string | undefined;
+      if (localStorage.getItem('token') !== null) {
+        token = (localStorage.getItem('token') as string);
+      }
+      const response = await createPaste(titleText, language, code, token);
 
-      const data = await response.json();
-
-
-      if (data.success) {
-        toast.success("Paste created successfully");
-        router.replace(`/view/${data.result}`);
-    }
+      toast.success("Paste created successfully");
+      router.replace(`/view/${response.result}`);
     } catch (error) {
       toast.error("Failed to create paste");
     }

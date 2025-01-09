@@ -9,6 +9,7 @@ import { useTheme } from "next-themes";
 import { title } from "@/components/primitives";
 import { CircularProgress } from "@nextui-org/react";
 import toast from 'react-hot-toast';
+import { fetchPasteData } from '@/actions/paste.action';
 
 export default function Page() {
     const [code, setCode] = useState('');
@@ -22,20 +23,14 @@ export default function Page() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`/api/view?id=${params.id}`, {
-                    method: 'GET',
-                });
+                const response = await fetchPasteData(params.id);
 
-                const data = await response.json();
 
-                if (data.success) {
-                    setLoading(false);
-                    setCode(data.result.content);
-                    setLanguage(data.result.language);
-                    setTitle(data.result.title);
-                } else {
-                    toast.error(`Failed to load paste: ${data.message}`);
-                }
+                setLoading(false);
+                setCode(response.content);
+                setLanguage(response.language);
+                setTitle(response.title);
+
             } catch (error) {
                 toast.error(`Failed to load paste: ${(error as Error).message}`);
             }

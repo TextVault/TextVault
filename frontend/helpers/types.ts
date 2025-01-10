@@ -1,11 +1,11 @@
 export type LoginFormType = {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 };
 
 export type RegisterFormType = {
-    name: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 };

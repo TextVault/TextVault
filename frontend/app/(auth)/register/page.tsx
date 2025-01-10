@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import { Register } from "@/components/auth/register";
 
 const register = () => {

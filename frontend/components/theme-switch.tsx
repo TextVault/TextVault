@@ -14,10 +14,7 @@ export interface ThemeSwitchProps {
   classNames?: SwitchProps["classNames"];
 }
 
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({
-  className,
-  classNames,
-}) => {
+export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames }) => {
   const { theme, setTheme } = useTheme();
   const isSSR = useIsSSR();
 
@@ -25,14 +22,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     theme === "light" ? setTheme("dark") : setTheme("light");
   };
 
-  const {
-    Component,
-    slots,
-    isSelected,
-    getBaseProps,
-    getInputProps,
-    getWrapperProps,
-  } = useSwitch({
+  const { Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
     isSelected: theme === "light" || isSSR,
     "aria-label": `Switch to ${theme === "light" || isSSR ? "dark" : "light"} mode`,
     onChange,
@@ -44,7 +34,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         className: clsx(
           "px-px transition-opacity hover:opacity-80 cursor-pointer",
           className,
-          classNames?.base,
+          classNames?.base
         ),
       })}
     >
@@ -66,15 +56,11 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
               "px-0",
               "mx-0",
             ],
-            classNames?.wrapper,
+            classNames?.wrapper
           ),
         })}
       >
-        {!isSelected || isSSR ? (
-          <SunFilledIcon size={22} />
-        ) : (
-          <MoonFilledIcon size={22} />
-        )}
+        {!isSelected || isSSR ? <SunFilledIcon size={22} /> : <MoonFilledIcon size={22} />}
       </div>
     </Component>
   );

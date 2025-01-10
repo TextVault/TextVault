@@ -1,27 +1,17 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import NextLink from "next/link";
 import clsx from "clsx";
 
 // NextUI Components
-import {
-  Navbar as NextUINavbar,
-  NavbarContent,
-  NavbarBrand,
-  NavbarItem,
-} from "@nextui-org/navbar";
+import { Navbar as NextUINavbar, NavbarContent, NavbarBrand, NavbarItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import { User } from "@nextui-org/user";
 import { Chip } from "@nextui-org/chip";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem
-} from "@nextui-org/dropdown";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/dropdown";
 
 // Local Imports
 import { link as linkStyles } from "@nextui-org/theme";
@@ -35,22 +25,22 @@ export const Navbar: React.FC = () => {
 
   const [authState, setAuthState] = useState({
     authenticated: false,
-    username: null as string | null
+    username: null as string | null,
   });
 
   // Memoized authentication check
   const checkAuthentication = useCallback(() => {
     try {
-      const isAuth = localStorage.getItem('token') !== null;
+      const isAuth = localStorage.getItem("token") !== null;
       if (isAuth) {
-        const username = localStorage.getItem('username');
+        const username = localStorage.getItem("username");
         setAuthState({ authenticated: true, username: username as string });
       } else {
         setAuthState({ authenticated: false, username: null });
       }
       return isAuth;
     } catch (error) {
-      console.error('Authentication check failed', error);
+      console.error("Authentication check failed", error);
       return false;
     }
   }, []);
@@ -62,8 +52,8 @@ export const Navbar: React.FC = () => {
 
   // Memoized logout handler
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
 
     checkAuthentication();
     router.replace("/login");
@@ -74,21 +64,18 @@ export const Navbar: React.FC = () => {
     <Dropdown>
       <NavbarItem>
         <DropdownTrigger>
-          <User name={authState.username || ''} />
+          <User name={authState.username || ""} />
         </DropdownTrigger>
       </NavbarItem>
-      <DropdownMenu aria-label='User menu actions'>
-        <DropdownItem key='profile' className='flex flex-col justify-start w-full items-start'>
+      <DropdownMenu aria-label="User menu actions">
+        <DropdownItem key="profile" className="flex flex-col justify-start w-full items-start">
           <p>Signed in as</p>
           <p>{authState.username}</p>
         </DropdownItem>
-        <DropdownItem key='my_pastes' href='/my'>My pastes</DropdownItem>
-        <DropdownItem
-          key='logout'
-          color='danger'
-          className='text-danger'
-          onPress={handleLogout}
-        >
+        <DropdownItem key="my_pastes" href="/my">
+          My pastes
+        </DropdownItem>
+        <DropdownItem key="logout" color="danger" className="text-danger" onPress={handleLogout}>
           Log Out
         </DropdownItem>
       </DropdownMenu>
@@ -148,21 +135,17 @@ export const Navbar: React.FC = () => {
               </NextLink>
             </NavbarItem>
           ))}
-        </ul>      </NavbarContent>
+        </ul>{" "}
+      </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
+      <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="hidden sm:flex gap-2">
           <Link isExternal aria-label="Github" href={siteConfig.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>
           <ThemeSwitch />
         </NavbarItem>
-        {authState.authenticated
-          ? renderAuthenticatedMenu()
-          : renderUnauthenticatedMenu()}
+        {authState.authenticated ? renderAuthenticatedMenu() : renderUnauthenticatedMenu()}
       </NavbarContent>
 
       {/* Rest of the navbar remains the same */}

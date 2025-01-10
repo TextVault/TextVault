@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import { useState, useEffect } from "react";
+import Editor from "@monaco-editor/react";
 
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
@@ -11,15 +11,15 @@ import { useTheme } from "next-themes";
 import { title } from "@/components/primitives";
 import { Skeleton } from "@nextui-org/skeleton";
 
-import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import { Languages } from '@/types/languages';
-import { createPaste } from '@/actions/paste.action';
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Languages } from "@/types/languages";
+import { createPaste } from "@/actions/paste.action";
 
 export default function Home() {
-  const [language, setLanguage] = useState('plaintext');
-  const [titleText, setTitleText] = useState('');
-  const [code, setCode] = useState('');
+  const [language, setLanguage] = useState("plaintext");
+  const [titleText, setTitleText] = useState("");
+  const [code, setCode] = useState("");
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
 
@@ -36,8 +36,8 @@ export default function Home() {
   const handleSubmit = async () => {
     try {
       let token: string | undefined;
-      if (localStorage.getItem('token') !== null) {
-        token = (localStorage.getItem('token') as string);
+      if (localStorage.getItem("token") !== null) {
+        token = localStorage.getItem("token") as string;
       }
       const response = await createPaste(titleText, language, code, token);
 
@@ -46,7 +46,6 @@ export default function Home() {
     } catch (error) {
       toast.error("Failed to create paste");
     }
-
   };
 
   const handleEditorChange = (value: any) => {
@@ -74,7 +73,9 @@ export default function Home() {
               label="Language"
               placeholder="Select language"
               defaultSelectedKeys={[language]}
-              onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setLanguage(e.target.value)}
+              onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
+                setLanguage(e.target.value)
+              }
               className="w-48"
             >
               {Languages.map((lang) => (
@@ -91,7 +92,7 @@ export default function Home() {
             )}
 
             <Editor
-              className='w-full dark:bg-[#1e1e1e] light:bg-default-100 h-96 p-4 font-mono rounded-lg border border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none'
+              className="w-full dark:bg-[#1e1e1e] light:bg-default-100 h-96 p-4 font-mono rounded-lg border border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
               height="100%"
               language={language}
               value={code}

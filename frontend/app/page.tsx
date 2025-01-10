@@ -42,7 +42,7 @@ export default function Home() {
       const response = await createPaste(titleText, language, code, token);
 
       toast.success("Paste created successfully");
-      router.replace(`/view/${response.result}`);
+      router.replace(`/view/${response.id}`);
     } catch (error) {
       toast.error("Failed to create paste");
     }

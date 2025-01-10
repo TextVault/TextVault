@@ -1,3 +1,5 @@
+'use server';
+
 import { request } from '@/services/requestService';
 
 export const getPaste = async (pasteId: string) => {

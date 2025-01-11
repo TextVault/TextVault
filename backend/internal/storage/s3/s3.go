@@ -2,11 +2,12 @@ package s3
 
 import (
 	cfg "TextVault/internal/config"
-	"TextVault/internal/lib/log/sl"
+	"TextVault/pkg/log/sl"
 	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"log/slog"
 	"time"
 
@@ -26,12 +27,16 @@ type Storage struct {
 	S3Client   *awss3.Client
 	log        *slog.Logger
 	bucketName string
+	pathPrefix string
 }
 
 func New(log *slog.Logger, s3config cfg.S3Config) (*Storage, error) {
 	ctx := context.Background()
 
-	sdkConfig, err := config.LoadDefaultConfig(ctx)
+	sdkConfig, err := config.LoadDefaultConfig(ctx,
+		config.WithRegion(s3config.Region),
+		config.WithBaseEndpoint(s3config.URL),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(s3config.Credentials.AccessKeyID, s3config.Credentials.SecretAccessKey, "")))
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +47,7 @@ func New(log *slog.Logger, s3config cfg.S3Config) (*Storage, error) {
 		S3Client:   s3Client,
 		log:        log,
 		bucketName: s3config.BucketName,
+		pathPrefix: s3config.PathPrefix,
 	}, nil
 }
 

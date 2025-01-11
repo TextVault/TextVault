@@ -1,0 +1,2 @@
+sql-gen:
+	sqlc generate

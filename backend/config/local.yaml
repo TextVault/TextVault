@@ -1,5 +1,9 @@
 env: "local"
-tokenKey: "secretkey"
+api:
+  title: "TextVault API"
+  description: "TextVault API"
+  version: "1.0.0"
+  docsClientId: "swag"
 postgres:
   host: "localhost"
   port: "5432"
@@ -7,9 +11,10 @@ postgres:
   password: "test-password"
   database: "textvault"
 s3:
-  bucket: "textvault"
-redis:
-  host: "localhost"
-  port: "6379"
-  password: "test-password"
-  db: 0
+  url: "https://s3.timeweb.cloud"
+  bucketName: "e51a62c8-63daaf1f-1594-41af-ac33-1a55c636643f"
+  pathPrefix: "textvault"
+  credentials:
+    accessKeyId: "6MXWBRF0RRWM7AFSYWGF"
+    secretAccessKey: "TdZWcztfTqFel5oNxXUXom8dmaxMhMFI6XHyBg8o"
+  region: "ru-1"

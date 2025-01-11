@@ -1,45 +1,49 @@
 package main
 
 import (
-	"log/slog"
+	"TextVault/api"
+	"TextVault/internal/storage/postgres"
+	"TextVault/internal/storage/s3"
+	"TextVault/pkg/log/sl"
+	"context"
 	"os"
 
-	"TextVault/internal/app"
 	"TextVault/internal/config"
-	"TextVault/internal/lib/log/sl"
-)
-
-const (
-	envLocal = "local"
-	envProd  = "production"
 )
 
 func main() {
 	cfg := config.MustLoad()
-	log := setupLogger(cfg.Env)
+	log := sl.SetupLogger(cfg.Env)
+	ctx := context.Background()
 
-	app, err := app.New(log, cfg)
+	s3Storage, err := s3.New(log, cfg.S3)
 	if err != nil {
-		log.Error("failed to create app", sl.Err(err))
+		log.Error("Failed to connect to s3 storage", sl.Err(err))
 		os.Exit(1)
 	}
 
-	app.Router.MustRun()
-}
+	log.Info("Connected to s3 storage")
 
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+	if err := s3Storage.BucketExists(ctx); err != nil {
+		log.Error("Failed to check s3 bucket", sl.Err(err))
+		os.Exit(1)
 	}
 
-	return log
+	storage, err := postgres.NewStorage(ctx, log, &cfg.Postgres)
+	if err != nil {
+		log.Error("Failed to connect to database", sl.Err(err))
+		os.Exit(1)
+	}
+
+	if err := storage.Ping(ctx); err != nil {
+		log.Error("Failed to check database connection", sl.Err(err))
+		os.Exit(1)
+	}
+
+	log.Info("Connected to database")
+
+	log.Info("Connected to redis")
+
+	r := api.New(cfg.API, storage, s3Storage, log)
+	r.MustRun()
 }

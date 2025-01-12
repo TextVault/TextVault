@@ -6,11 +6,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
+	"os"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
-	"log/slog"
-	"os"
 )
 
 type Logger struct {
@@ -32,33 +33,34 @@ func main() {
 	cfg := config.MustLoad() // Already calls flag.Parse() internally
 	log := sl.SetupLogger(cfg.Env)
 
+	if *up && *down {
+		panic("cannot run both --up and --down migrations")
+	}
+
 	pool, err := pgxpool.New(context.Background(), cfg.Postgres.DSN())
 	if err != nil {
-		log.Error("Unable to connect to database", sl.Err(err))
-		os.Exit(1)
+		panic("failed to connect to database: " + err.Error())
 	}
 	defer pool.Close()
 
 	db := stdlib.OpenDBFromPool(pool)
 	if err := goose.SetDialect("postgres"); err != nil {
-		log.Error("Failed to set dialect", sl.Err(err))
-		os.Exit(1)
+		panic("failed to set dialect: " + err.Error())
 	}
 
 	migrationsPath := "./migrations"
 	goose.SetLogger(&Logger{log})
-	if *up {
-		if err := goose.Up(db, migrationsPath); err != nil {
-			log.Error("Failed to run migrations", sl.Err(err))
-			os.Exit(1)
-		}
+
+	var migrateErr error
+	switch {
+	case *up:
+		migrateErr = goose.Up(db, migrationsPath)
+	case *down:
+		migrateErr = goose.Down(db, migrationsPath)
 	}
 
-	if *down {
-		if err := goose.Down(db, migrationsPath); err != nil {
-			log.Error("Failed to run migrations", sl.Err(err))
-			os.Exit(1)
-		}
+	if migrateErr != nil {
+		log.Error("Migration failed: %v", sl.Err(migrateErr))
 	}
 
 	log.Info("Migrations applied successfully")

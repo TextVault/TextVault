@@ -31,7 +31,7 @@ func (r *Router) PasteCreatePaste(ctx context.Context, req *api.PastePasteCreate
 		user := user_raw.(*jwt.UserClaims)
 		err := AuthorID.Scan(user.UserID)
 		if err != nil {
-			return nil, types.HandleValidationError(ctx, err, log)
+			return nil, types.HandleValidationError(err, log)
 		}
 		log.Info("User ID extracted from token", slog.String("user_id", user.UserID))
 	}
@@ -48,14 +48,14 @@ func (r *Router) PasteCreatePaste(ctx context.Context, req *api.PastePasteCreate
 	if err != nil {
 		log.Error("Failed to save paste", sl.Err(err))
 
-		return nil, types.HandleBadRequestError(ctx, err, log)
+		return nil, types.HandleBadRequestError(err, log)
 	}
 
 	err = r.pasteS3Gateway.UploadPaste(ctx, paste.ID.String(), []byte(req.Content))
 	if err != nil {
 		log.Error("Failed to upload paste", sl.Err(err))
 
-		return nil, types.HandleBadRequestError(ctx, err, log)
+		return nil, types.HandleBadRequestError(err, log)
 	}
 
 	log.Info("Paste saved successfully", slog.String("id", paste.ID.String()))

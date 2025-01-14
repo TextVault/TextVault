@@ -11,7 +11,7 @@ type APIError struct {
 	Error string `json:"error"`
 }
 
-func HandleValidationError(ctx context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
+func HandleValidationError(err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("User error", sl.Err(err))
 	return &api.ErrRespStatusCode{
 		StatusCode: 400,
@@ -19,7 +19,7 @@ func HandleValidationError(ctx context.Context, err error, log *slog.Logger) *ap
 	}
 }
 
-func HandleBadRequestError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
+func HandleBadRequestError(err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("Bad request", sl.Err(err))
 	return &api.ErrRespStatusCode{
 		StatusCode: 400,
@@ -27,7 +27,7 @@ func HandleBadRequestError(c context.Context, err error, log *slog.Logger) *api.
 	}
 }
 
-func HandleInternalServerError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
+func HandleInternalServerError(err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("Internal server error", sl.Err(err))
 
 	return &api.ErrRespStatusCode{
@@ -36,7 +36,7 @@ func HandleInternalServerError(c context.Context, err error, log *slog.Logger) *
 	}
 }
 
-func HandleUnauthorizedResponse(c context.Context) *api.ErrRespStatusCode {
+func HandleUnauthorizedResponse() *api.ErrRespStatusCode {
 	return &api.ErrRespStatusCode{
 		StatusCode: 401,
 		Response:   "Unauthorized",

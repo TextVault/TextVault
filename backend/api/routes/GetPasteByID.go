@@ -22,7 +22,7 @@ func (r *Router) PasteGetPasteByID(ctx context.Context, params api.PasteGetPaste
 	var pasteUUID pgtype.UUID
 	err := pasteUUID.Scan(params.ID)
 	if err != nil {
-		return nil, types.HandleInternalServerError(ctx, err, log)
+		return nil, types.HandleInternalServerError(err, log)
 	}
 	paste, err := r.pasteGateway.GetPaste(ctx, pasteUUID)
 	if err != nil {
@@ -31,7 +31,7 @@ func (r *Router) PasteGetPasteByID(ctx context.Context, params api.PasteGetPaste
 
 	content, err := r.pasteS3Gateway.GetPasteContent(ctx, params.ID)
 	if err != nil {
-		return nil, types.HandleBadRequestError(ctx, err, log)
+		return nil, types.HandleBadRequestError(err, log)
 	}
 
 	log.Info("Paste retrieved successfully", slog.String("id", paste.ID.String()))
@@ -39,7 +39,7 @@ func (r *Router) PasteGetPasteByID(ctx context.Context, params api.PasteGetPaste
 	var ID uuid.UUID
 	err = ID.Scan(paste.ID.String())
 	if err != nil {
-		return nil, types.HandleInternalServerError(ctx, err, log)
+		return nil, types.HandleInternalServerError(err, log)
 	}
 	return &api.PastePaste{
 		ID:       ID.String(),

@@ -15,7 +15,7 @@ func (r *Router) PasteGetUserPastes(ctx context.Context, params api.PasteGetUser
 
 	user := ctx.Value("user").(*jwt.UserClaims)
 	if user == nil {
-		return nil, types.HandleUnauthorizedResponse(ctx)
+		return nil, types.HandleUnauthorizedResponse()
 	}
 
 	log := r.log.With(
@@ -28,12 +28,12 @@ func (r *Router) PasteGetUserPastes(ctx context.Context, params api.PasteGetUser
 	var userUUID pgtype.UUID
 	err := userUUID.Scan(user.UserID)
 	if err != nil {
-		return nil, types.HandleValidationError(ctx, err, log)
+		return nil, types.HandleValidationError(err, log)
 	}
 	pastes, err := r.pasteGateway.GetUserPastes(ctx, postgres.GetUserPastesParams{AuthorID: userUUID,
 		Limit: params.Limit, Offset: params.Offset})
 	if err != nil {
-		return nil, types.HandleInternalServerError(ctx, err, log)
+		return nil, types.HandleInternalServerError(err, log)
 	}
 
 	r.log.Info("Successfully got pastes by user", slog.Int("count", len(pastes)), slog.String("user_id", user.UserID))

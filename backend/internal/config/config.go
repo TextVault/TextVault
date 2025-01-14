@@ -4,6 +4,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -11,10 +12,17 @@ import (
 
 type Config struct {
 	Env      string         `yaml:"env" env-default:"local"`
+	API      APIConfig      `yaml:"api"`
 	Postgres PostgresConfig `yaml:"postgres"`
 	S3       S3Config       `yaml:"s3"`
-	Redis    RedisConfig    `yaml:"redis"`
-	TokenKey string         `yaml:"tokenKey" env-default:"secret_key"`
+}
+
+type APIConfig struct {
+	Title        string   `yaml:"title" env-default:"TextVault API"`
+	Description  string   `yaml:"description" env-default:"TextVault API"`
+	Version      string   `yaml:"version" env-default:"1.0.0"`
+	DocsClientID string   `yaml:"docsClientId" env-default:"TEST"`
+	CORSAllowed  []string `yaml:"corsAllowed" env-default:"[]"`
 }
 
 type PostgresConfig struct {
@@ -25,15 +33,21 @@ type PostgresConfig struct {
 	Database string `yaml:"database"`
 }
 
-type S3Config struct {
-	BucketName string `yaml:"bucketName" env-default:"textvault"`
+func (cfg PostgresConfig) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
 }
 
-type RedisConfig struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
+type Credentials struct {
+	AccessKeyID     string `yaml:"accessKeyId"`
+	SecretAccessKey string `yaml:"secretAccessKey"`
+}
+
+type S3Config struct {
+	URL         string      `yaml:"url"`
+	BucketName  string      `yaml:"bucketName" env-default:"textvault"`
+	PathPrefix  string      `yaml:"pathPrefix" env-default:"textvault"`
+	Credentials Credentials `yaml:"credentials"`
+	Region      string      `yaml:"region"`
 }
 
 func MustLoad() *Config {

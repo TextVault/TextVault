@@ -1,0 +1,63 @@
+services:
+  traefik:
+    image: traefik:v3.2
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+
+  backend:
+    build:
+      context: ../backend
+      target: backend.Dockerfile
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
+      traefik.http.routers.backend.tls: true
+      traefik.http.routers.backend.tls.certresolver: letsencrypt
+    configs:
+      - source: backend-config
+        target: /app/backend/config.toml
+
+  frontend:
+    build:
+      context: ../frontend
+      target: frontend.Dockerfile
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.frontend.rule: "Host(`textvault.ru`)"
+      traefik.http.routers.frontend.tls: true
+      traefik.http.routers.frontend.tls.certresolver: letsencrypt
+
+  migrations:
+    build:
+      context: ../backend
+      target: backend.Dockerfile
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test-password
+      POSTGRES_DB: textvault
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+
+configs:
+  oauth-config:
+    file: ./configs/oauth2-proxy.cfg
+  backend-config:
+    file: ./configs/backend.toml

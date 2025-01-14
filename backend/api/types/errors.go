@@ -1,8 +1,9 @@
 package types
 
 import (
+	api "TextVault/api/gen"
 	"TextVault/pkg/log/sl"
-	"github.com/gofiber/fiber/v2"
+	"context"
 	"log/slog"
 )
 
@@ -10,28 +11,42 @@ type APIError struct {
 	Error string `json:"error"`
 }
 
-func HandleValidationError(c *fiber.Ctx, err error, log *slog.Logger) error {
+func HandleValidationError(ctx context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("User error", sl.Err(err))
-	return c.Status(fiber.StatusUnprocessableEntity).JSON(APIError{
-		Error: "User error",
-	})
+	return &api.ErrRespStatusCode{
+		StatusCode: 400,
+		Response:   "User error",
+	}
 }
 
-func HandleBadRequestError(c *fiber.Ctx, err error, log *slog.Logger) error {
+func HandleBadRequestError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("Bad request", sl.Err(err))
-	return c.Status(fiber.StatusBadRequest).JSON(APIError{
-		Error: "Bad request",
-	})
+	return &api.ErrRespStatusCode{
+		StatusCode: 400,
+		Response:   "Bad request",
+	}
 }
 
-func HandleInternalServerError(c *fiber.Ctx, err error, log *slog.Logger) error {
+func HandleInternalServerError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
 	log.Error("Internal server error", sl.Err(err))
 
-	return c.Status(fiber.StatusInternalServerError).JSON(APIError{
-		Error: "Internal server error",
-	})
+	return &api.ErrRespStatusCode{
+		StatusCode: 500,
+		Response:   "Internal server error",
+	}
 }
 
-func HandleUnauthorizedResponse(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusUnauthorized).JSON(APIError{Error: "Unauthorized"})
+func HandleUnauthorizedResponse(c context.Context) *api.ErrRespStatusCode {
+	return &api.ErrRespStatusCode{
+		StatusCode: 401,
+		Response:   "Unauthorized",
+	}
+}
+
+func HandleNotFoundError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
+	log.Error("Not found", sl.Err(err))
+	return &api.ErrRespStatusCode{
+		StatusCode: 404,
+		Response:   "Not found",
+	}
 }

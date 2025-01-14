@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 
@@ -9,7 +9,7 @@ import { title } from "@/src/components/primitives";
 
 import { CircularProgress } from "@nextui-org/react";
 import toast from "react-hot-toast";
-import { fetchPasteData } from "@/src/shared/requests/paste.action";
+import { getPaste } from "@/src/shared/requests/paste.action";
 
 export default function Page() {
   const [code, setCode] = useState("");
@@ -23,12 +23,12 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetchPasteData(params.id);
+        const { data } = await getPaste(params.id);
 
         setLoading(false);
-        setCode(response.content);
-        setLanguage(response.language);
-        setTitle(response.title);
+        setCode(data?.content || "");
+        setLanguage(data?.language || "");
+        setTitle(data?.title || "");
       } catch (error) {
         toast.error(`Failed to load paste: ${(error as Error).message}`);
       }

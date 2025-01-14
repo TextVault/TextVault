@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
-
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Input } from "@nextui-org/input";
 import { useTheme } from "next-themes";
-
-import { title } from "@/src/components/primitives";
 import { Skeleton } from "@nextui-org/skeleton";
-
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+
+import { title } from "@/src/components/primitives";
 import { Languages } from "@/src/types/languages";
 import { createPaste } from "@/src/shared/requests/paste.action";
 
@@ -36,14 +34,16 @@ export default function Home() {
   const handleSubmit = async () => {
     try {
       let token: string | undefined;
+
       if (localStorage.getItem("token") !== null) {
         token = localStorage.getItem("token") as string;
       }
       const response = await createPaste(titleText, language, code, token);
 
-      toast.success("Paste created successfully");
-      router.replace(`/view/${response.id}`);
+      toast.success(`Paste created successfully: ${JSON.stringify(response.data)}`);
+      router.replace(`/view/${response.data.id}`);
     } catch (error) {
+      console.log(error);
       toast.error("Failed to create paste");
     }
   };
@@ -62,21 +62,21 @@ export default function Home() {
         <div className="light:bg-default-100 dark:bg-[#141414] rounded-lg shadow-lg p-6">
           <div className="flex gap-4 mb-4">
             <Input
-              type="text"
+              className="flex-1"
               label="Title"
               placeholder="Enter paste title..."
+              type="text"
               value={titleText}
               onChange={(e) => setTitleText(e.target.value)}
-              className="flex-1"
             />
             <Select
+              className="w-48"
+              defaultSelectedKeys={[language]}
               label="Language"
               placeholder="Select language"
-              defaultSelectedKeys={[language]}
-              onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
+              onChange={(e: { target: { value: SetStateAction<string> } }) =>
                 setLanguage(e.target.value)
               }
-              className="w-48"
             >
               {Languages.map((lang) => (
                 <SelectItem key={lang.value} value={lang.value}>
@@ -92,12 +92,10 @@ export default function Home() {
             )}
 
             <Editor
-              className="w-full dark:bg-[#1e1e1e] light:bg-default-100 h-96 p-4 font-mono rounded-lg border border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-              height="100%"
+              className="w-40 dark:bg-[#1e1e1e] light:bg-default-100 h-96 p-4 font-mono rounded-lg border border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+              height="40vh"
+              width="40vw"
               language={language}
-              value={code}
-              onChange={(e) => handleEditorChange(e)}
-              theme={theme === "dark" ? "vs-dark" : "vs-light"}
               options={{
                 minimap: { enabled: false },
                 lineNumbers: "on",
@@ -110,11 +108,14 @@ export default function Home() {
                 cursorBlinking: "smooth",
                 cursorSmoothCaretAnimation: "on",
               }}
+              theme={theme === "dark" ? "vs-dark" : "vs-light"}
+              value={code}
+              onChange={(e) => handleEditorChange(e)}
             />
           </div>
 
           <div className="mt-4 flex justify-end">
-            <Button color="primary" className="px-6" onClick={handleSubmit}>
+            <Button className="px-6" color="primary" onClick={handleSubmit}>
               Save Paste
             </Button>
           </div>

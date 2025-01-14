@@ -37,10 +37,11 @@
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.4",
     "ofetch": "^1.4.1",
+    "openapi-fetch": "^0.13.4",
+    "openapi-typescript": "^7.5.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hot-toast": "^2.5.1",
-    "swagger-typescript-api": "^13.0.23",
     "yup": "^1.6.1"
   },
   "devDependencies": {
@@ -63,6 +64,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "4.1.4",
     "postcss": "8.4.49",
+    "swagger-typescript-api": "^13.0.23",
     "tailwind-variants": "0.1.20",
     "tailwindcss": "3.4.16",
     "typescript": "5.6.3"

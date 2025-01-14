@@ -52,11 +52,13 @@ func main() {
 	goose.SetLogger(&Logger{log})
 
 	var migrateErr error
-	switch {
-	case *up:
+	if *up {
 		migrateErr = goose.Up(db, migrationsPath)
-	case *down:
+	} else if *down {
 		migrateErr = goose.Down(db, migrationsPath)
+	} else {
+		log.Error("Migration failed: no command specified")
+		os.Exit(1)
 	}
 
 	if migrateErr != nil {

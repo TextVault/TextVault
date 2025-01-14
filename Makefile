@@ -29,3 +29,6 @@ deploy: build
 	docker push ${FRONTEND_TAG}
 	docker push ${BACKEND_TAG}
 	docker push ${MIGRATIONS_TAG}
+
+generate-server:
+	docker compose -f ./ogen.yaml run --rm generate-server

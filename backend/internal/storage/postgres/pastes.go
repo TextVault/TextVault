@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (s *Storage) GetPaste(ctx context.Context, id pgtype.UUID) (Paste, error) {
+func (s *Storage) GetPaste(ctx context.Context, id pgtype.UUID) (*Paste, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
@@ -17,13 +17,13 @@ func (s *Storage) GetPaste(ctx context.Context, id pgtype.UUID) (Paste, error) {
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return Paste{}, storage.ErrPasteNotFound
+			return nil, storage.ErrPasteNotFound
 		}
 
-		return Paste{}, err
+		return nil, err
 	}
 
-	return paste, nil
+	return &paste, nil
 }
 
 func (s *Storage) SavePaste(ctx context.Context, paste SavePasteParams) (*Paste, error) {
@@ -39,7 +39,10 @@ func (s *Storage) SavePaste(ctx context.Context, paste SavePasteParams) (*Paste,
 	if err != nil {
 		return nil, err
 	}
-
+	err = tx.Commit(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return &pasteResult, nil
 }
 
@@ -58,7 +61,10 @@ func (s *Storage) DeletePaste(ctx context.Context, params DeletePasteParams) err
 	if deleted == 0 {
 		return storage.ErrPasteNotFound
 	}
-
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -79,11 +85,19 @@ func (s *Storage) UpdatePaste(ctx context.Context, paste UpdatePasteParams) erro
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	_, err := s.queries.UpdatePaste(ctx, paste)
+	tx, err := s.conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = s.queries.UpdatePaste(ctx, paste)
 
 	if err != nil {
 		return err
 	}
 
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
 	return nil
 }

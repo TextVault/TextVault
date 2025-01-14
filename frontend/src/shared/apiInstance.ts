@@ -1,11 +1,9 @@
-import { Api } from "@/src/shared/gen/api";
+"use client";
 
-export const apiInstance = new Api({
-  baseUrl: process.env.TEXTVAULT_BACKEND_URL,
-  baseApiParams: {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  },
+import createClient from "openapi-fetch";
+
+import { type paths } from "@/src/shared/gen/schema";
+
+export const apiInstance = createClient<paths>({
+  baseUrl: process.env.NEXT_PUBLIC_TEXTVAULT_BACKEND_URL,
 });

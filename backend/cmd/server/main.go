@@ -6,6 +6,7 @@ import (
 	"TextVault/internal/storage/s3"
 	"TextVault/pkg/log/sl"
 	"context"
+	"log/slog"
 	"os"
 
 	"TextVault/internal/config"
@@ -45,5 +46,7 @@ func main() {
 	log.Info("Connected to redis")
 
 	r := api.New(cfg.API, storage, s3Storage, log)
+
+	log.Info("Starting server", slog.Any("config", cfg))
 	r.MustRun()
 }

@@ -1,6 +1,7 @@
-package pastes
+package routes
 
 import (
+	api "TextVault/api/gen"
 	"TextVault/internal/storage/postgres"
 	"context"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -12,7 +13,7 @@ type PasteGateway interface {
 	UpdatePaste(ctx context.Context, paste postgres.UpdatePasteParams) error
 	DeletePaste(ctx context.Context, params postgres.DeletePasteParams) error
 	SavePaste(ctx context.Context, paste postgres.SavePasteParams) (*postgres.Paste, error)
-	GetPaste(ctx context.Context, id pgtype.UUID) (postgres.Paste, error)
+	GetPaste(ctx context.Context, id pgtype.UUID) (*postgres.Paste, error)
 }
 
 type PasteS3Gateway interface {
@@ -28,7 +29,22 @@ type Router struct {
 	log *slog.Logger
 }
 
-func NewPastes(log *slog.Logger,
+func (r *Router) AccountGetProfile(ctx context.Context) (*api.AccountUser, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *Router) PasteUpdatePaste(ctx context.Context, req *api.PastePasteUpdate, params api.PasteUpdatePasteParams) (*api.PastePaste, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *Router) NewError(ctx context.Context, err error) *api.ErrRespStatusCode {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewRouter(log *slog.Logger,
 	pasteGateway PasteGateway,
 	pasteS3Gateway PasteS3Gateway,
 ) *Router {

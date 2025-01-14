@@ -1,3 +1,6 @@
+air:
+	air -c .air.toml
+
 swagger:
 	swag i -g api/server.go
 

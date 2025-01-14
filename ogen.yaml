@@ -1,0 +1,8 @@
+services:
+  generate-server:
+    image: ghcr.io/ogen-go/ogen:latest
+    command: >
+      --target workspace/ --clean spec/openapi.yaml
+    volumes:
+      - ./backend/api/gen:/workspace
+      - ./spec/tsp-output/@typespec/openapi3/:/spec/

@@ -18,10 +18,11 @@ type Config struct {
 }
 
 type APIConfig struct {
-	Title        string `yaml:"title" env-default:"TextVault API"`
-	Description  string `yaml:"description" env-default:"TextVault API"`
-	Version      string `yaml:"version" env-default:"1.0.0"`
-	DocsClientID string `yaml:"docsClientId" env-default:"TEST"`
+	Title        string   `yaml:"title" env-default:"TextVault API"`
+	Description  string   `yaml:"description" env-default:"TextVault API"`
+	Version      string   `yaml:"version" env-default:"1.0.0"`
+	DocsClientID string   `yaml:"docsClientId" env-default:"TEST"`
+	CORSAllowed  []string `yaml:"corsAllowed" env-default:"[]"`
 }
 
 type PostgresConfig struct {

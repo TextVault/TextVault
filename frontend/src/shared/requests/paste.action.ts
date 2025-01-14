@@ -1,11 +1,18 @@
-"use server";
-
+"use client";
 import { apiInstance } from "@/src/shared/apiInstance";
 
-export const getPaste = async (pasteId: string) => {
-  return apiInstance.pastes.pastesDetail(pasteId);
-};
+const pastes = "/pastes";
+const pastesId = "/pastes/{id}";
 
+export const getPaste = async (pasteId: string) => {
+  return apiInstance.GET(pastesId, {
+    params: {
+      path: {
+        id: pasteId,
+      },
+    },
+  });
+};
 export const createPaste = async (
   title: string,
   language: string,
@@ -20,16 +27,10 @@ export const createPaste = async (
     };
   }
 
-  return apiInstance.pastes.pastesCreate(
-    { title: title, language: language, content: paste },
-    {
-      headers: headers,
-    }
-  );
-};
-
-export const fetchPasteData = async (pasteId: string) => {
-  return await apiInstance.pastes.pastesDetail(pasteId);
+  return apiInstance.POST(pastes, {
+    body: { title: title, language: language, content: paste },
+    headers: headers,
+  });
 };
 
 export const deletePaste = async (pasteId: string, token?: string) => {
@@ -37,5 +38,5 @@ export const deletePaste = async (pasteId: string, token?: string) => {
     Authorization: `Bearer ${token}`,
   };
 
-  return apiInstance.pastes.pastesDelete(pasteId, { headers: headers });
+  return apiInstance.DELETE(pastesId, { params: { path: { id: pasteId } }, headers: headers });
 };

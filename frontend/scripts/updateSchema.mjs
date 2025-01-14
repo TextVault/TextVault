@@ -1,9 +1,9 @@
 import { exec } from "child_process";
 
-const specPath = process.env.TEXTVAULT_BACKEND_URL + "/swagger/doc.json";
-const outputPath = "./src/shared/gen/";
+const specPath = "../spec/tsp-output/@typespec/openapi3/openapi.yaml";
+const outputPath = "./src/shared/gen/schema.d.ts";
 
-exec(`npx swagger-typescript-api --path ${specPath} --output ${outputPath} -r -n api.ts --extract-enums`, (error, stdout, stderr) => {
+exec(`npx openapi-typescript ${specPath} --output ${outputPath}`, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error generating types: ${error.message}`);
 

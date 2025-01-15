@@ -1,52 +1,56 @@
 package types
 
-import (
-	api "TextVault/api/gen"
-	"TextVault/pkg/log/sl"
-	"context"
-	"log/slog"
-)
-
 type APIError struct {
 	Error string `json:"error"`
 }
-
-func HandleValidationError(err error, log *slog.Logger) *api.ErrRespStatusCode {
-	log.Error("User error", sl.Err(err))
-	return &api.ErrRespStatusCode{
-		StatusCode: 400,
-		Response:   "User error",
-	}
+type ValidationError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
-func HandleBadRequestError(err error, log *slog.Logger) *api.ErrRespStatusCode {
-	log.Error("Bad request", sl.Err(err))
-	return &api.ErrRespStatusCode{
-		StatusCode: 400,
-		Response:   "Bad request",
-	}
+func NewValidationError(field string, message string) ValidationError {
+	return ValidationError{Field: field, Message: message}
 }
 
-func HandleInternalServerError(err error, log *slog.Logger) *api.ErrRespStatusCode {
-	log.Error("Internal server error", sl.Err(err))
-
-	return &api.ErrRespStatusCode{
-		StatusCode: 500,
-		Response:   "Internal server error",
-	}
+func (e ValidationError) Error() string {
+	return "Validation error: " + e.Message + " in field " + e.Field
 }
 
-func HandleUnauthorizedResponse() *api.ErrRespStatusCode {
-	return &api.ErrRespStatusCode{
-		StatusCode: 401,
-		Response:   "Unauthorized",
-	}
+type InternalServerError struct {
+	Message string `json:"message"`
 }
 
-func HandleNotFoundError(c context.Context, err error, log *slog.Logger) *api.ErrRespStatusCode {
-	log.Error("Not found", sl.Err(err))
-	return &api.ErrRespStatusCode{
-		StatusCode: 404,
-		Response:   "Not found",
-	}
+func NewInternalServerError(message string) InternalServerError {
+	return InternalServerError{Message: message}
 }
+
+func (e InternalServerError) Error() string { return "Internal server error: " + e.Message }
+
+type BadRequestError struct {
+	Message string `json:"message"`
+}
+
+func NewBadRequestError(message string) BadRequestError {
+	return BadRequestError{Message: message}
+}
+
+func (e BadRequestError) Error() string { return "Bad request: " + e.Message }
+
+type UnauthorizedError struct {
+	Message *string `json:"message"`
+}
+
+func NewUnauthorizedError(message *string) UnauthorizedError {
+	return UnauthorizedError{Message: message}
+}
+
+func (e UnauthorizedError) Error() string { return "Unauthorized: " + *e.Message }
+
+type NotFoundError struct {
+	Message string `json:"message"`
+}
+
+func NewNotFoundError(message string) NotFoundError {
+	return NotFoundError{Message: message}
+}
+func (e NotFoundError) Error() string { return "Not found: " + e.Message }

@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 
 const specPath = "../spec/tsp-output/@typespec/openapi3/openapi.yaml";
-const outputPath = "./src/shared/gen/schema.d.ts";
+const outputPath = "./src/shared/api/schema.d.ts";
 
 exec(`npx openapi-typescript ${specPath} --output ${outputPath}`, (error, stdout, stderr) => {
   if (error) {

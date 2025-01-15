@@ -133,19 +133,8 @@ func (s *Server) handleAccountGetProfileRequest(args [0]string, argsEscaped bool
 		response, err = s.h.AccountGetProfile(ctx)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -241,9 +230,8 @@ func (s *Server) handlePasteCreatePasteRequest(args [0]string, argsEscaped bool,
 					Security:         "BearerAuth",
 					Err:              err,
 				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:BearerAuth", err)
-				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
 				return
 			}
 			if ok {
@@ -271,9 +259,8 @@ func (s *Server) handlePasteCreatePasteRequest(args [0]string, argsEscaped bool,
 				OperationContext: opErrContext,
 				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
 			}
-			if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-				defer recordError("Security", err)
-			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
 	}
@@ -327,19 +314,8 @@ func (s *Server) handlePasteCreatePasteRequest(args [0]string, argsEscaped bool,
 		response, err = s.h.PasteCreatePaste(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -435,9 +411,8 @@ func (s *Server) handlePasteDeletePasteRequest(args [1]string, argsEscaped bool,
 					Security:         "BearerAuth",
 					Err:              err,
 				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:BearerAuth", err)
-				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
 				return
 			}
 			if ok {
@@ -464,9 +439,8 @@ func (s *Server) handlePasteDeletePasteRequest(args [1]string, argsEscaped bool,
 				OperationContext: opErrContext,
 				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
 			}
-			if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-				defer recordError("Security", err)
-			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
 	}
@@ -520,19 +494,8 @@ func (s *Server) handlePasteDeletePasteRequest(args [1]string, argsEscaped bool,
 		err = s.h.PasteDeletePaste(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -667,19 +630,8 @@ func (s *Server) handlePasteGetPasteByIDRequest(args [1]string, argsEscaped bool
 		response, err = s.h.PasteGetPasteByID(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -775,9 +727,8 @@ func (s *Server) handlePasteGetUserPastesRequest(args [0]string, argsEscaped boo
 					Security:         "BearerAuth",
 					Err:              err,
 				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:BearerAuth", err)
-				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
 				return
 			}
 			if ok {
@@ -804,9 +755,8 @@ func (s *Server) handlePasteGetUserPastesRequest(args [0]string, argsEscaped boo
 				OperationContext: opErrContext,
 				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
 			}
-			if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-				defer recordError("Security", err)
-			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
 	}
@@ -821,7 +771,7 @@ func (s *Server) handlePasteGetUserPastesRequest(args [0]string, argsEscaped boo
 		return
 	}
 
-	var response *PastePastes
+	var response Pastes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -845,7 +795,7 @@ func (s *Server) handlePasteGetUserPastesRequest(args [0]string, argsEscaped boo
 		type (
 			Request  = struct{}
 			Params   = PasteGetUserPastesParams
-			Response = *PastePastes
+			Response = Pastes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -864,19 +814,8 @@ func (s *Server) handlePasteGetUserPastesRequest(args [0]string, argsEscaped boo
 		response, err = s.h.PasteGetUserPastes(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -972,9 +911,8 @@ func (s *Server) handlePasteUpdatePasteRequest(args [1]string, argsEscaped bool,
 					Security:         "BearerAuth",
 					Err:              err,
 				}
-				if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-					defer recordError("Security:BearerAuth", err)
-				}
+				defer recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
 				return
 			}
 			if ok {
@@ -1001,9 +939,8 @@ func (s *Server) handlePasteUpdatePasteRequest(args [1]string, argsEscaped bool,
 				OperationContext: opErrContext,
 				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
 			}
-			if encodeErr := encodeErrorResponse(s.h.NewError(ctx, err), w, span); encodeErr != nil {
-				defer recordError("Security", err)
-			}
+			defer recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
 			return
 		}
 	}
@@ -1072,19 +1009,8 @@ func (s *Server) handlePasteUpdatePasteRequest(args [1]string, argsEscaped bool,
 		response, err = s.h.PasteUpdatePaste(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*ErrRespStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 

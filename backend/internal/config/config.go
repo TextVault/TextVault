@@ -15,6 +15,13 @@ type Config struct {
 	API      APIConfig      `yaml:"api"`
 	Postgres PostgresConfig `yaml:"postgres"`
 	S3       S3Config       `yaml:"s3"`
+	Auth     AuthConfig     `yaml:"auth"`
+}
+
+type AuthConfig struct {
+	Issuer   string `yaml:"issuer" env-default:"http://localhost:8080"`
+	Audience string `yaml:"audience" env-default:"http://localhost:8080"`
+	JWTKey   string `yaml:"jwtKey" env-default:"test-key"`
 }
 
 type APIConfig struct {

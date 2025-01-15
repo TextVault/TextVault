@@ -1,9 +1,6 @@
 air:
 	air -c .air.toml
 
-swagger:
-	swag i -g api/server.go
-
 sql-gen:
 	sqlc generate -f sqlc.yaml
 

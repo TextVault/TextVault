@@ -14,13 +14,14 @@ func (r *Router) PasteDeletePaste(ctx context.Context, params api.PasteDeletePas
 	const prefix = "internal.router.services.paste.DeletePaste"
 	user := ctx.Value("user").(*jwt.UserClaims)
 	if user == nil {
-		return types.HandleUnauthorizedResponse()
+		return types.UnauthorizedError{Message: nil}
 	}
 
 	log := r.log.With(
 		slog.String("op", prefix),
 		slog.String("pasteID", params.ID),
-		slog.String("mail", user.Email),
+		slog.String("user_id", user.Subject),
+		//slog.String("mail", user.Email),
 	)
 
 	log.Info("Attempting to delete paste")
@@ -29,17 +30,23 @@ func (r *Router) PasteDeletePaste(ctx context.Context, params api.PasteDeletePas
 	var pasteUUID pgtype.UUID
 	err := pasteUUID.Scan(params.ID)
 	if err != nil {
-		return types.HandleValidationError(err, log)
+		return types.NewValidationError("id", err.Error())
 	}
-	err = r.pasteGateway.DeletePaste(ctx, postgres.DeletePasteParams{ID: pasteUUID})
+
+	var authorID pgtype.UUID
+	err = authorID.Scan(user.Subject)
 	if err != nil {
-		return types.HandleBadRequestError(err, log)
+		return types.NewValidationError("author_id", err.Error())
+	}
+	err = r.pasteGateway.DeletePaste(ctx, postgres.DeletePasteParams{ID: pasteUUID, AuthorID: authorID})
+	if err != nil {
+		return types.NewBadRequestError(err.Error())
 	}
 
 	// @NOTE: Delete paste from s3
 	err = r.pasteS3Gateway.DeletePaste(ctx, params.ID)
 	if err != nil {
-		return types.HandleBadRequestError(err, log)
+		return types.NewBadRequestError(err.Error())
 	}
 
 	log.Info("Paste deleted successfully")

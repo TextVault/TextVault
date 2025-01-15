@@ -1,20 +1,16 @@
-import { nextui } from "@nextui-org/theme";
+import { nextui } from "@nextui-org/react";
+import { withTV } from "tailwind-variants/transformer";
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+/** @type {import("tailwindcss").Config} */
+module.exports = withTV({
   content: [
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/@nextui-org/*/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
-      },
-    },
+    extend: {},
   },
   darkMode: "class",
   plugins: [nextui()],
-};
+});

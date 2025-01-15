@@ -33,39 +33,24 @@ func (s *PastePaste) Validate() error {
 	return nil
 }
 
-func (s *PastePastes) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
+func (s Pastes) Validate() error {
+	alias := ([]PastePaste)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
 	}
-
 	var failures []validate.FieldError
-	if err := func() error {
-		if s.Pastes == nil {
-			return errors.New("nil is invalid value")
-		}
-		var failures []validate.FieldError
-		for i, elem := range s.Pastes {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
+	for i, elem := range alias {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
 			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
 		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "pastes",
-			Error: err,
-		})
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}

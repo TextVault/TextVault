@@ -39,11 +39,6 @@ func (r *Router) PasteUpdatePaste(ctx context.Context, req *api.PastePasteUpdate
 	panic("implement me")
 }
 
-func (r *Router) NewError(ctx context.Context, err error) *api.ErrRespStatusCode {
-	//TODO implement me
-	panic("implement me")
-}
-
 func NewRouter(log *slog.Logger,
 	pasteGateway PasteGateway,
 	pasteS3Gateway PasteS3Gateway,

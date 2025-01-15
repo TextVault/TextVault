@@ -43,7 +43,7 @@ type Invoker interface {
 	// PasteGetUserPastes invokes paste_getUserPastes operation.
 	//
 	// GET /pastes
-	PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (*PastePastes, error)
+	PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (Pastes, error)
 	// PasteUpdatePaste invokes paste_updatePaste operation.
 	//
 	// PUT /pastes/{id}
@@ -56,12 +56,8 @@ type Client struct {
 	sec       SecuritySource
 	baseClient
 }
-type errorHandler interface {
-	NewError(ctx context.Context, err error) *ErrRespStatusCode
-}
 
 var _ Handler = struct {
-	errorHandler
 	*Client
 }{}
 
@@ -493,12 +489,12 @@ func (c *Client) sendPasteGetPasteByID(ctx context.Context, params PasteGetPaste
 // PasteGetUserPastes invokes paste_getUserPastes operation.
 //
 // GET /pastes
-func (c *Client) PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (*PastePastes, error) {
+func (c *Client) PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (Pastes, error) {
 	res, err := c.sendPasteGetUserPastes(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendPasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (res *PastePastes, err error) {
+func (c *Client) sendPasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (res Pastes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("paste_getUserPastes"),
 		semconv.HTTPRequestMethodKey.String("GET"),

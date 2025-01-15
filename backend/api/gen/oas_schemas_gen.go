@@ -3,13 +3,8 @@
 package api
 
 import (
-	"fmt"
 	"time"
 )
-
-func (s *ErrRespStatusCode) Error() string {
-	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
-}
 
 // Ref: #/components/schemas/account.User
 type AccountUser struct {
@@ -60,32 +55,6 @@ func (s *BearerAuth) GetToken() string {
 // SetToken sets the value of Token.
 func (s *BearerAuth) SetToken(val string) {
 	s.Token = val
-}
-
-// ErrRespStatusCode wraps string with StatusCode.
-type ErrRespStatusCode struct {
-	StatusCode int
-	Response   string
-}
-
-// GetStatusCode returns the value of StatusCode.
-func (s *ErrRespStatusCode) GetStatusCode() int {
-	return s.StatusCode
-}
-
-// GetResponse returns the value of Response.
-func (s *ErrRespStatusCode) GetResponse() string {
-	return s.Response
-}
-
-// SetStatusCode sets the value of StatusCode.
-func (s *ErrRespStatusCode) SetStatusCode(val int) {
-	s.StatusCode = val
-}
-
-// SetResponse sets the value of Response.
-func (s *ErrRespStatusCode) SetResponse(val string) {
-	s.Response = val
 }
 
 // NewNilString returns new NilString with value set to v.
@@ -348,28 +317,4 @@ func (s *PastePasteUpdate) SetContent(val OptString) {
 	s.Content = val
 }
 
-// Ref: #/components/schemas/paste.Pastes
-type PastePastes struct {
-	Pastes []PastePaste `json:"pastes"`
-	Token  OptString    `json:"token"`
-}
-
-// GetPastes returns the value of Pastes.
-func (s *PastePastes) GetPastes() []PastePaste {
-	return s.Pastes
-}
-
-// GetToken returns the value of Token.
-func (s *PastePastes) GetToken() OptString {
-	return s.Token
-}
-
-// SetPastes sets the value of Pastes.
-func (s *PastePastes) SetPastes(val []PastePaste) {
-	s.Pastes = val
-}
-
-// SetToken sets the value of Token.
-func (s *PastePastes) SetToken(val OptString) {
-	s.Token = val
-}
+type Pastes []PastePaste

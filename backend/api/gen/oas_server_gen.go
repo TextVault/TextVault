@@ -27,15 +27,11 @@ type Handler interface {
 	// PasteGetUserPastes implements paste_getUserPastes operation.
 	//
 	// GET /pastes
-	PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (*PastePastes, error)
+	PasteGetUserPastes(ctx context.Context, params PasteGetUserPastesParams) (Pastes, error)
 	// PasteUpdatePaste implements paste_updatePaste operation.
 	//
 	// PUT /pastes/{id}
 	PasteUpdatePaste(ctx context.Context, req *PastePasteUpdate, params PasteUpdatePasteParams) (*PastePaste, error)
-	// NewError creates *ErrRespStatusCode from error returned by handler.
-	//
-	// Used for common default response.
-	NewError(ctx context.Context, err error) *ErrRespStatusCode
 }
 
 // Server implements http server based on OpenAPI v3 specification and

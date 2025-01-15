@@ -1,0 +1,25 @@
+env: "local"
+api:
+  title: "TextVault API"
+  description: "TextVault API"
+  version: "1.0.0"
+  docsClientId: "swag"
+  corsAllowed: ["http://localhost:3000"]
+auth:
+  issuer: "issuer"
+  audience: "account"
+  jwtKey: "key"
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "test-password"
+  database: "textvault"
+s3:
+  url: "http://localhost:9000"
+  bucketName: "textvault"
+  pathPrefix: "textvault"
+  credentials:
+    accessKeyId: "key"
+    secretAccessKey: "accessKey"
+  region: "ru-1"

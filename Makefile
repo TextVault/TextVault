@@ -21,9 +21,9 @@ compose:
 	docker compose -f infra/docker-compose.yaml up --build -d
 
 build:
-	docker build . -t ${FRONTEND_TAG} --target ${TARGET} -f infra/frontend.Dockerfile
-	docker build . -t ${BACKEND_TAG} --target ${TARGET} -f infra/backend.Dockerfile
-	docker build . -t ${MIGRATIONS_TAG} --target ${MIGRATIONS_TARGET} -f infra/backend.Dockerfile
+	docker build . -t ${FRONTEND_TAG} --target ${TARGET} -f infra/frontend.Dockerfile frontend
+	docker build . -t ${BACKEND_TAG} --target ${TARGET} -f infra/backend.Dockerfile backend
+	docker build . -t ${MIGRATIONS_TAG} --target ${MIGRATIONS_TARGET} -f infra/backend.Dockerfile backend
 
 deploy: build
 	docker push ${FRONTEND_TAG}

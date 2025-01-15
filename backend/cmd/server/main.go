@@ -45,8 +45,8 @@ func main() {
 
 	log.Info("Connected to redis")
 
-	r := api.New(cfg.API, storage, s3Storage, log)
+	r := api.New(cfg.API, cfg.Auth, storage, s3Storage, log)
 
-	log.Info("Starting server", slog.Any("config", cfg))
+	log.Info("Starting server", slog.Any("config", cfg.API))
 	r.MustRun()
 }

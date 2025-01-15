@@ -7,6 +7,7 @@ import (
 	"TextVault/internal/config"
 	"TextVault/internal/storage/postgres"
 	"TextVault/internal/storage/s3"
+	"TextVault/pkg/jwt"
 	"fmt"
 	"github.com/go-chi/cors"
 	"log/slog"
@@ -18,10 +19,15 @@ type Server struct {
 	log *slog.Logger
 }
 
-func New(api config.APIConfig, postgres *postgres.Storage, s3 *s3.Storage, log *slog.Logger) *Server {
+func New(api config.APIConfig, auth config.AuthConfig, postgres *postgres.Storage, s3 *s3.Storage, log *slog.Logger) *Server {
+	publicKey, err := jwt.ValidatePublicKey(auth.JWTKey)
+	if err != nil {
+		panic(err)
+	}
 
 	srv, err := api2.NewServer(routes.NewRouter(log, postgres, s3), security.BearerAuthHandler{
-		Log: log,
+		Log:    log,
+		JWTKey: publicKey,
 	})
 	if err != nil {
 		panic(err)
@@ -31,6 +37,7 @@ func New(api config.APIConfig, postgres *postgres.Storage, s3 *s3.Storage, log *
 			AllowedOrigins:   api.CORSAllowed,
 			AllowCredentials: true,
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"*"},
 		})(srv)
 
 	return &Server{

@@ -5,6 +5,10 @@ api:
   version: "1.0.0"
   docsClientId: "swag"
   corsAllowed: ["http://localhost:3000"]
+auth:
+  issuer: "https://auth.bytes2b.ru/realms/Dev"
+  audience: "account"
+  jwtKey: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4v0n4X3tvCb8jm6n/OqFkq5a02Aex8/pb1mkjsdrAe6A9GWhiC4/AN+MihmX+2Sq2CAdEZXMUspP8dBJ+WYJ9pm/NZTNRCWxWVJei2MCOUme3q//v59sN2QGrgjvv6yYDQV3GFb4LFk8EUMj4FuiJtxbOo+ofjo0Uwaa+MMhK5RRUtz0bkpk27T4TYYmMNphF/06Feek8aFucdUZA9MXSy/6pVJ5qnENfFomh+DyECzuH5ENtesUMr39veEcAzlR3j8aOgP0S/fVycEHtzNzJcWwl14CGgjsvseTQWD/YYwgQLE6ziTGjbZQaeGww8E0qo3ECQc+HjVqxZpDFw2GDwIDAQAB"
 postgres:
   host: "localhost"
   port: "5432"

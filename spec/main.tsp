@@ -19,10 +19,6 @@ namespace TextVault;
 namespace paste {
 
 @TypeSpec.OpenAPI.defaultResponse
-model PasteResponse {
-    @body body: string;
-};
-
 model Paste {
     id: string;
     title: string;
@@ -35,17 +31,17 @@ model Paste {
     updatedAt: utcDateTime;
 }
 
-model Pastes{
-    pastes: Paste[];
-    token?: string;
-};
+@TypeSpec.OpenAPI.defaultResponse
+model Pastes is Paste[];
 
+@TypeSpec.OpenAPI.defaultResponse
 model PasteCreate {
     title: string;
     language: string;
     content: string;
 }
 
+@TypeSpec.OpenAPI.defaultResponse
 model PasteUpdate {
     title?: string;
     language?: string;
@@ -57,52 +53,47 @@ model PasteUpdate {
 op getUserPastes(@query offset: int32, @query limit: int32): {
     @statusCode statusCode: 200;
     @body body: Pastes;
-} | PasteResponse;
+};
 
 @get
 op getPasteByID(@path id: string): {
     @statusCode statusCode: 200;
     @body body: Paste;
-} | PasteResponse;
+};
 
 @post
 @useAuth(BearerAuth | NoAuth)
 op createPaste(@body paste: PasteCreate): {
     @statusCode statusCode: 201;
     @body body: Paste;
-} | PasteResponse;
+};
 
 @delete
 @useAuth(BearerAuth)
 op deletePaste(@path id: string): {
     @statusCode statusCode: 204;
-} | PasteResponse;
+};
 
 @put
 @useAuth(BearerAuth)
 op updatePaste(@path id: string, @body paste: PasteUpdate): {
     @statusCode statusCode: 200;
     @body body: Paste;
-} | PasteResponse;
+};
 }
 
 @tag("Account")
 @route("/account")
 namespace account {
 @TypeSpec.OpenAPI.defaultResponse
-model AccountResponse {
-    @body body: string;
-};
-
 model User {
     id: string;
     name: string;
     email: string;
-
 }
 @get
 op getProfile(): {
     @statusCode statusCode: 200;
     @body body: User;
-} | AccountResponse;
+};
 }

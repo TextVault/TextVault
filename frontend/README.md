@@ -1,27 +1,24 @@
-# Next.js & NextUI Template
+# Vite & NextUI Template
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+This is a template for creating applications using Vite and NextUI (v2).
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
+[Try it on CodeSandbox](https://githubbox.com/nextui-org/vite-template)
 
 ## Technologies Used
 
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [NextUI v2](https://nextui.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
+- [Vite](https://vitejs.dev/guide/)
+- [NextUI](https://nextui.org)
+- [Tailwind CSS](https://tailwindcss.com)
 - [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
+- [TypeScript](https://www.typescriptlang.org)
+- [Framer Motion](https://www.framer.com/motion)
 
 ## How to Use
 
-### Use the template with create-next-app
-
-To create a new project based on this template using `create-next-app`, run the following command:
+To clone the project, run the following command:
 
 ```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-template
+git clone https://github.com/nextui-org/vite-template.git
 ```
 
 ### Install dependencies
@@ -50,4 +47,4 @@ After modifying the `.npmrc` file, you need to run `pnpm install` again to ensur
 
 ## License
 
-Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
+Licensed under the [MIT license](https://github.com/nextui-org/vite-template/blob/main/LICENSE).

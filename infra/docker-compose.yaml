@@ -37,7 +37,7 @@ services:
       traefik.http.middlewares.oauth-signin.errors.query: "/oauth2/sign_in"
 
       traefik.http.routers.oauth.service: "oauth2-proxy"
-      traefik.http.routers.oauth.rule: "(Host(`openapi.textvault.ru`) || Host(`swagger.textvault.ru`)) && PathPrefix(`/oauth2`)"
+      traefik.http.routers.oauth.rule: "(Host(`whodb.textvault.ru`) || Host(`swagger.textvault.ru`)) && PathPrefix(`/oauth2`)"
       traefik.http.routers.oauth.tls: true
       traefik.http.routers.oauth.tls.certresolver: letsencrypt
 
@@ -116,6 +116,10 @@ services:
     environment:
       WHODB_POSTGRES: '[{"host":"postgres","user":"postgres","password":"postgrespwd","database":"textvault"}]'
     labels:
+      traefik.enable: "true"
+      traefik.http.routers.whodb.rule: "Host(`whodb.textvault.ru`)"
+      traefik.http.routers.whodb.tls: true
+      traefik.http.routers.whodb.tls.certresolver: letsencrypt
       traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
 
   watchtower:

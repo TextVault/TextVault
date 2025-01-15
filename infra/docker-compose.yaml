@@ -15,6 +15,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
+
   oauth2-proxy:
     container_name: oauth2-proxy
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
@@ -28,16 +29,16 @@ services:
       OAUTH2_PROXY_UPSTREAMS: http://swagger:8080
     labels:
       traefik.enable: "true"
-      "traefik.http.middlewares.oauth-verify.forwardAuth.address": "http://oauth:80/oauth2/auth"
-      "traefik.http.middlewares.oauth-verify.forwardAuth.trustForwardHeader": "true"
-      "traefik.http.middlewares.oauth-verify.forwardAuth.authResponseHeaders": "X-Auth-Request-User,X-Auth-Request-Email,Set-Cookie,X-Auth-Request-Access-Token,Authorization"
+      traefik.http.middlewares.oauth-verify.forwardAuth.address: "http://oauth2-proxy:80/oauth2/auth"
+      traefik.http.middlewares.oauth-verify.forwardAuth.trustForwardHeader: "true"
+      traefik.http.middlewares.oauth-verify.forwardAuth.authResponseHeaders: "X-Auth-Request-User,X-Auth-Request-Email,Set-Cookie,X-Auth-Request-Access-Token,Authorization"
 
       traefik.http.middlewares.oauth-signin.errors.service: "oauth2-proxy"
       traefik.http.middlewares.oauth-signin.errors.status: "401-403"
       traefik.http.middlewares.oauth-signin.errors.query: "/oauth2/sign_in"
 
       traefik.http.routers.oauth.service: "oauth2-proxy"
-      traefik.http.routers.oauth.rule: "(Host(`openapi.textvault.ru`) || Host(`swagger.textvault.ru`)) && PathPrefix(`/oauth2`)"
+      traefik.http.routers.oauth.rule: "(Host(`whodb.textvault.ru`) || Host(`swagger.textvault.ru`)) && PathPrefix(`/oauth2`)"
       traefik.http.routers.oauth.tls: true
       traefik.http.routers.oauth.tls.certresolver: letsencrypt
 
@@ -116,6 +117,10 @@ services:
     environment:
       WHODB_POSTGRES: '[{"host":"postgres","user":"postgres","password":"postgrespwd","database":"textvault"}]'
     labels:
+      traefik.enable: "true"
+      traefik.http.routers.whodb.rule: "Host(`whodb.textvault.ru`)"
+      traefik.http.routers.whodb.tls: true
+      traefik.http.routers.whodb.tls.certresolver: letsencrypt
       traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
 
   watchtower:

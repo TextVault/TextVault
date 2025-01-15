@@ -28,15 +28,19 @@ services:
       OAUTH2_PROXY_UPSTREAMS: http://swagger:8080
     labels:
       traefik.enable: "true"
-      traefik.http.routers.oauth.service: "oauth2-proxy"
-      traefik.http.routers.oauth.rule: "(Host(`textvault.ru`) && !PathPrefix(`/api`)) || Host(`openapi.bytes2b.ru`)"
-      traefik.http.routers.oauth.tls: true
-      traefik.http.routers.oauth.tls.certresolver: letsencrypt
-      traefik.http.routers.oauth.middlewares: "oauth-signin"
+      "traefik.http.middlewares.oauth-verify.forwardAuth.address": "http://oauth:80/oauth2/auth"
+      "traefik.http.middlewares.oauth-verify.forwardAuth.trustForwardHeader": "true"
+      "traefik.http.middlewares.oauth-verify.forwardAuth.authResponseHeaders": "X-Auth-Request-User,X-Auth-Request-Email,Set-Cookie,X-Auth-Request-Access-Token,Authorization"
 
       traefik.http.middlewares.oauth-signin.errors.service: "oauth2-proxy"
       traefik.http.middlewares.oauth-signin.errors.status: "401-403"
       traefik.http.middlewares.oauth-signin.errors.query: "/oauth2/sign_in"
+
+      traefik.http.routers.oauth.service: "oauth2-proxy"
+      traefik.http.routers.oauth.rule: "(Host(`openapi.textvault.ru`) || Host(`swagger.textvault.ru`)) && PathPrefix(`/oauth2`)"
+      traefik.http.routers.oauth.tls: true
+      traefik.http.routers.oauth.tls.certresolver: letsencrypt
+
   swagger:
     build:
       context: ../swagger
@@ -48,6 +52,7 @@ services:
       traefik.http.routers.swagger.rule: "Host(`swagger.textvault.ru`)"
       traefik.http.routers.swagger.tls: true
       traefik.http.routers.swagger.tls.certresolver: letsencrypt
+      traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
 
   backend:
     build:
@@ -55,16 +60,17 @@ services:
       target: backend.Dockerfile
     expose:
       - 8080
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
-      traefik.http.routers.backend.tls: true
-      traefik.http.routers.backend.tls.certresolver: letsencrypt
     environment:
       CONFIG_PATH: /app/backend/config.yaml
     configs:
       - source: backend-config
         target: /app/backend/config.yaml
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
+      traefik.http.routers.backend.tls: true
+      traefik.http.routers.backend.tls.certresolver: letsencrypt
+      com.centurylinklabs.watchtower.enable: "true"
 
   frontend:
     build:
@@ -77,12 +83,14 @@ services:
       traefik.http.routers.frontend.rule: "Host(`textvault.ru`)"
       traefik.http.routers.frontend.tls: true
       traefik.http.routers.frontend.tls.certresolver: letsencrypt
+      com.centurylinklabs.watchtower.enable: "true"
 
   migrations:
     build:
       context: ../backend
       target: backend.Dockerfile
-
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
   postgres:
     image: postgres:17-alpine
     environment:
@@ -96,6 +104,14 @@ services:
       - 8080
     environment:
       WHODB_POSTGRES: '[{"host":"postgres","user":"postgres","password":"postgrespwd","database":"textvault"}]'
+    labels:
+      traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
 
 configs:
   oauth-config:

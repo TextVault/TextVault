@@ -1,17 +1,14 @@
-FROM node:20.10.0-buster-slim
+### STAGE 1: Build ###
+FROM node:lts-alpine AS builder
+WORKDIR /usr/src
+ENV PATH /usr/src/node_modules/.bin:$PATH
+COPY package.json .
+RUN npm install --silent
+COPY . .
+RUN npm run build
 
-WORKDIR /app
-
-ENV TEXTVAULT_BACKEND_URL=http://localhost:8080
-
-COPY package.json package-lock.json* next.config.js tsconfig.json ./
-
-RUN npm ci
-
-COPY . ./
-
-RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
-
-EXPOSE 3000
-
-CMD ["npm", "run", "start"]
+### STAGE 2: Production Environment ###
+FROM nginx:alpine AS production-image
+COPY --from=builder /usr/src/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

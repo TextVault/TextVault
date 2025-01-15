@@ -16,6 +16,39 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
+    expose:
+      - 80
+    command: --config /app/config.cfg
+    configs:
+      - source: oauth2-proxy-config
+        target: /app/config.cfg
+    environment:
+      OAUTH2_PROXY_UPSTREAMS: http://swagger:8080
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.oauth.service: "oauth2-proxy"
+      traefik.http.routers.oauth.rule: "(Host(`textvault.ru`) && !PathPrefix(`/api`)) || Host(`openapi.bytes2b.ru`)"
+      traefik.http.routers.oauth.tls: true
+      traefik.http.routers.oauth.tls.certresolver: letsencrypt
+      traefik.http.routers.oauth.middlewares: "oauth-signin"
+
+      traefik.http.middlewares.oauth-signin.errors.service: "oauth2-proxy"
+      traefik.http.middlewares.oauth-signin.errors.status: "401-403"
+      traefik.http.middlewares.oauth-signin.errors.query: "/oauth2/sign_in"
+  swagger:
+    build:
+      context: ../swagger
+      target: production-image
+    expose:
+      - "8080"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.swagger.rule: "Host(`swagger.textvault.ru`)"
+      traefik.http.routers.swagger.tls: true
+      traefik.http.routers.swagger.tls.certresolver: letsencrypt
 
   backend:
     build:
@@ -26,9 +59,11 @@ services:
       traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
       traefik.http.routers.backend.tls: true
       traefik.http.routers.backend.tls.certresolver: letsencrypt
+    environment:
+      CONFIG_PATH: /app/backend/config.yaml
     configs:
       - source: backend-config
-        target: /app/backend/config.toml
+        target: /app/backend/config.yaml
 
   frontend:
     build:
@@ -48,16 +83,19 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test-password
-      POSTGRES_DB: textvault
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: postgrespwd
     volumes:
       - ./postgres:/var/lib/postgresql/data
+
+  whodb:
+    image: clidey/whodb
+    expose:
+      - 8080
+    environment:
+      WHODB_POSTGRES: '[{"host":"postgres","user":"postgres","password":"postgrespwd","database":"textvault"}]'
 
 configs:
   oauth-config:
     file: ./configs/oauth2-proxy.cfg
   backend-config:
-    file: ./configs/backend.toml
+    file: ./configs/backend.yaml

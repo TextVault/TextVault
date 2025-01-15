@@ -12,7 +12,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
@@ -43,7 +42,7 @@ services:
       context: ../swagger
       target: production-image
     expose:
-      - "8080"
+      - 8080
     labels:
       traefik.enable: "true"
       traefik.http.routers.swagger.rule: "Host(`swagger.textvault.ru`)"
@@ -54,6 +53,8 @@ services:
     build:
       context: ../backend
       target: backend.Dockerfile
+    expose:
+      - 8080
     labels:
       traefik.enable: "true"
       traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
@@ -69,6 +70,8 @@ services:
     build:
       context: ../frontend
       target: frontend.Dockerfile
+    expose:
+      - 80
     labels:
       traefik.enable: "true"
       traefik.http.routers.frontend.rule: "Host(`textvault.ru`)"

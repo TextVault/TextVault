@@ -44,6 +44,7 @@ services:
   swagger:
     build:
       context: ../swagger
+      dockerfile: swagger.Dockerfile
       target: production-image
     expose:
       - 8080
@@ -57,7 +58,8 @@ services:
   backend:
     build:
       context: ../backend
-      target: backend.Dockerfile
+      dockerfile: backend.Dockerfile
+      target: production-image
     expose:
       - 8080
     environment:
@@ -75,7 +77,8 @@ services:
   frontend:
     build:
       context: ../frontend
-      target: frontend.Dockerfile
+      dockerfile: frontend.Dockerfile
+      target: production-image
     expose:
       - 80
     labels:
@@ -88,7 +91,8 @@ services:
   migrations:
     build:
       context: ../backend
-      target: backend.Dockerfile
+      dockerfile: backend.Dockerfile
+      target: migrations-image
     labels:
       com.centurylinklabs.watchtower.enable: "true"
   postgres:
@@ -97,6 +101,7 @@ services:
       POSTGRES_PASSWORD: postgrespwd
     volumes:
       - ./postgres:/var/lib/postgresql/data
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   whodb:
     image: clidey/whodb

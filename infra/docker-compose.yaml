@@ -93,8 +93,14 @@ services:
       context: ../backend
       dockerfile: backend.Dockerfile
       target: migrations-image
+    environment:
+      CONFIG_PATH: /app/backend/config.yaml
+    configs:
+      - source: backend-config
+        target: /app/backend/config.yaml
     labels:
       com.centurylinklabs.watchtower.enable: "true"
+
   postgres:
     image: postgres:17-alpine
     environment:

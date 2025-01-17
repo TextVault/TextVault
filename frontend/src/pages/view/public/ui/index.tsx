@@ -23,7 +23,7 @@ export const PublicViewPage = () => {
   return (
     <Flex alignItems={"center"} flexDirection={"column"} gap={4} justifyContent={"center"}>
       <Heading size={"5xl"}>{data.title}</Heading>
-      <Container px={2} py={10} shadow={"lg"} width={"5xl"}>
+      <Container px={2} py={10} shadow={"lg"}>
         <TextVaultEditor
           language={data.language}
           loading={isLoading}

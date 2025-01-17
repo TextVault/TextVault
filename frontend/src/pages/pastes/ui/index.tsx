@@ -3,31 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 import { PastesTable } from "./PastesTable";
 
-import { useOidc } from "@/shared/api/oidc.ts";
-import { queryClient } from "@/shared/api/queryClient.ts";
+import { useOidc } from "@/shared/api/oidc";
 import { CircularProgress } from "@/components/CircularProgress/CircularProgress";
 import { PastesPagination } from "@/pages/pastes/ui/PastesPagination.tsx";
-import { toaster } from "@/shared/ui/toaster.ts";
+import { toaster } from "@/shared/ui/toaster";
+import { useDeletePaste, useUserPastes } from "@/pages/pastes/api";
 
 export const PastesPage = () => {
   const { oidcTokens } = useOidc({ assertUserLoggedIn: true });
   const naviage = useNavigate();
 
-  const { mutateAsync } = queryClient.useMutation("delete", "/pastes/{id}"); // TODO: Extract to /api
+  const { mutateAsync } = useDeletePaste();
 
-  const {
-    data: pastes,
-    isLoading,
-    refetch,
-  } = queryClient.useQuery("get", "/pastes", {
-    params: {
-      query: {
-        limit: 100,
-        offset: 0,
-      },
-    },
-    headers: { Authorization: `Bearer ${oidcTokens.accessToken}` },
-  }); // TODO: Extract to /api
+  const { data: pastes, isLoading, refetch } = useUserPastes(100, 0, oidcTokens.accessToken);
   const handleDeletePaste = async (pasteId: string) => {
     try {
       await mutateAsync({

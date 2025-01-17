@@ -5,59 +5,137 @@ services:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+#      - --entrypoints.websecure.address=:443
+#      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+#      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+#      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
     ports:
       - "80:80"
-      - "443:443"
-      - "8080:8080"
+#      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+#      - ./letsencrypt:/letsencrypt
+
+  oauth2-proxy:
+    container_name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
+    expose:
+      - 80
+    command: --config /app/config.cfg
+    configs:
+      - source: oauth2-proxy-config
+        target: /app/config.cfg
+    environment:
+      OAUTH2_PROXY_UPSTREAMS: http://swagger:8080
+    labels:
+      traefik.enable: "true"
+      traefik.http.middlewares.oauth-verify.forwardAuth.address: "http://oauth2-proxy:80/oauth2/auth"
+      traefik.http.middlewares.oauth-verify.forwardAuth.trustForwardHeader: "true"
+      traefik.http.middlewares.oauth-verify.forwardAuth.authResponseHeaders: "X-Auth-Request-User,X-Auth-Request-Email,Set-Cookie,X-Auth-Request-Access-Token,Authorization"
+
+      traefik.http.middlewares.oauth-signin.errors.service: "oauth2-proxy"
+      traefik.http.middlewares.oauth-signin.errors.status: "401-403"
+      traefik.http.middlewares.oauth-signin.errors.query: "/oauth2/sign_in"
+
+      traefik.http.routers.oauth.service: "oauth2-proxy"
+      traefik.http.routers.oauth.rule: "(Host(`whodb.local`) || Host(`swagger.local`)) && PathPrefix(`/oauth2`)"
+#      traefik.http.routers.oauth.tls: true
+#      traefik.http.routers.oauth.tls.certresolver: letsencrypt
+
+  swagger:
+    build:
+      context: ../spec
+      dockerfile: ../infra/swagger.Dockerfile
+      target: production-image
+    expose:
+      - 8080
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.swagger.rule: "Host(`swagger.local`)"
+#      traefik.http.routers.swagger.tls: true
+#      traefik.http.routers.swagger.tls.certresolver: letsencrypt
+#      traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
+      com.centurylinklabs.watchtower.enable: "true"
 
   backend:
     build:
       context: ../backend
-      target: backend.Dockerfile
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.backend.rule: "Host(`api.textvault.ru`)"
-      traefik.http.routers.backend.tls: true
-      traefik.http.routers.backend.tls.certresolver: letsencrypt
+      dockerfile: ../infra/backend.Dockerfile
+      target: production-image
+    expose:
+      - 8080
+    environment:
+      CONFIG_PATH: /app/backend/config.yaml
     configs:
       - source: backend-config
-        target: /app/backend/config.toml
+        target: /app/backend/config.yaml
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.backend.rule: "Host(`api.local`)"
+#      traefik.http.routers.backend.tls: true
+#      traefik.http.routers.backend.tls.certresolver: letsencrypt
+      com.centurylinklabs.watchtower.enable: "true"
 
   frontend:
     build:
       context: ../frontend
-      target: frontend.Dockerfile
+      dockerfile: ../infra/frontend.Dockerfile
+      target: production-image
+    expose:
+      - 80
     labels:
       traefik.enable: "true"
-      traefik.http.routers.frontend.rule: "Host(`textvault.ru`)"
-      traefik.http.routers.frontend.tls: true
-      traefik.http.routers.frontend.tls.certresolver: letsencrypt
+      traefik.http.routers.frontend.rule: "Host(`textvault.local`)"
+#      traefik.http.routers.frontend.tls: true
+#      traefik.http.routers.frontend.tls.certresolver: letsencrypt
+      com.centurylinklabs.watchtower.enable: "true"
 
   migrations:
     build:
       context: ../backend
-      target: backend.Dockerfile
+      dockerfile: ../infra/backend.Dockerfile
+      target: migrations-image
+    environment:
+      CONFIG_PATH: /app/backend/config.yaml
+    configs:
+      - source: backend-config
+        target: /app/backend/config.yaml
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
 
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test-password
-      POSTGRES_DB: textvault
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: postgrespwd
     volumes:
       - ./postgres:/var/lib/postgresql/data
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres_db" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  whodb:
+    image: clidey/whodb
+    expose:
+      - 8080
+    environment:
+      WHODB_POSTGRES: '[{"host":"postgres","user":"postgres","password":"postgrespwd","database":"textvault"}]'
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.whodb.rule: "Host(`whodb.local`)"
+#      traefik.http.routers.whodb.tls: true
+#      traefik.http.routers.whodb.tls.certresolver: letsencrypt
+#      traefik.http.routers.swagger.middlewares: "oauth-signin,oauth-verify"
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
 
 configs:
-  oauth-config:
+  oauth2-proxy-config:
     file: ./configs/oauth2-proxy.cfg
   backend-config:
-    file: ./configs/backend.toml
+    file: ./configs/backend.yaml

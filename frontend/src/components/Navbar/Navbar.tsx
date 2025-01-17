@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Flex, HStack, IconButton } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react/typography";
-import { BiMoon, BiSun, BiLogoGithub } from "react-icons/bi";
+import { BiLogoGithub, BiMoon, BiSun } from "react-icons/bi";
 
 import { LogoIcon } from "@/shared/ui/icons.tsx";
 import { useOidc } from "@/shared/api/oidc.ts";
@@ -21,12 +21,14 @@ export const Navbar = () => {
       position={"sticky"}
       width={"full"}
     >
-      <Flex key={"logo"} alignItems={"center"} as={Link} gap={1} to={"/"}>
-        <LogoIcon />
-        <Text as={"span"} display={"inline"} fontWeight="bold" textStyle={"md"}>
-          TextVault
-        </Text>
-        <Tag colorPalette="blue">Beta</Tag>
+      <Flex key={"logo"} asChild alignItems={"center"} gap={1}>
+        <Link to={"/"}>
+          <LogoIcon />
+          <Text as={"span"} display={"inline"} fontWeight="bold" textStyle={"md"}>
+            TextVault
+          </Text>
+          <Tag colorPalette="blue">Beta</Tag>
+        </Link>
       </Flex>
 
       <Flex alignItems={"center"} flexDirection={"row"} gap={2}>

@@ -1,7 +1,7 @@
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useTheme } from "next-themes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createListCollection, Flex, Float, Input } from "@chakra-ui/react";
+import { createListCollection, Flex, Input } from "@chakra-ui/react";
 
 import { Languages as RawLanguages } from "@/shared/types/languages.ts";
 import { TextVaultEditor } from "@/components/TextVaultEditor/TextVaultEditor.tsx";

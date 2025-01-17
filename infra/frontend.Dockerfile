@@ -8,7 +8,15 @@ COPY . .
 RUN npm run build
 
 ### STAGE 2: Production Environment ###
-FROM nginx:alpine AS production-image
-COPY --from=builder /usr/src/dist /usr/share/nginx/html
+FROM caddy:latest AS production-image
+
+COPY --from=builder /usr/src/dist /usr/share/caddy/html
+
+RUN echo ":80 {" > /etc/caddy/Caddyfile
+RUN echo "    encode zstd gzip" >> /etc/caddy/Caddyfile
+RUN echo "    root * /usr/share/caddy/html" >> /etc/caddy/Caddyfile
+RUN echo "    file_server" >> /etc/caddy/Caddyfile
+RUN echo "    try_files {path} /index.html" >> /etc/caddy/Caddyfile
+RUN echo "}" >> /etc/caddy/Caddyfile
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]

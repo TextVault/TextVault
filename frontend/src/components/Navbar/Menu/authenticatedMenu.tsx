@@ -26,9 +26,6 @@ export const AuthenticatedMenu = () => {
             <Avatar name={oidcTokens?.decodedIdToken.preferred_username} size="lg" />
             <Stack gap="0">
               <Text fontWeight="medium">{oidcTokens?.decodedIdToken.preferred_username}</Text>
-              <Text color="fg.muted" textStyle="sm">
-                {oidcTokens?.decodedIdToken.email}
-              </Text>
             </Stack>
           </HStack>
         </Button>

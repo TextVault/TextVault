@@ -9,16 +9,16 @@ import { RootLayout } from "@/shared/ui/layout.tsx";
 import { nativeClient } from "@/shared/api/queryClient.ts";
 import { Toaster } from "@/components/ui/toaster";
 import { systemTheme } from "@/shared/config/theme.ts";
-import { CircularProgress } from "@/components/CircularProgress/CircularProgress";
+import { Fallback } from "@/components/Fallback/Fallback";
 
 export const Providers = () => {
   return (
     <ChakraProvider value={systemTheme}>
       <ThemeProvider attribute={"class"} disableTransitionOnChange={true}>
-        <OidcProvider fallback={<CircularProgress/>}>
+        <OidcProvider fallback={<Fallback/>}>
           <QueryClientProvider client={nativeClient}>
             <RootLayout>
-              <ErrorBoundary fallback={<CircularProgress/>}>
+              <ErrorBoundary fallback={<Fallback/>}>
                 <Outlet />
                 <Toaster />
               </ErrorBoundary>

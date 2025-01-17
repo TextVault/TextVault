@@ -39,9 +39,9 @@ export const RootLayout = ({ children }: { children: React.ReactNode }) => {
               <Text>With</Text>
               <RandomHeart color={randomColor} />
               <Text>by</Text>
-              <Text color={randomColor}> wtf-keaton</Text>
-              <Text>&</Text>
-              <Text color={randomColor}> mrmamongo</Text>
+              <Text color={randomColor}> TextVault</Text>
+              <Text>team</Text>
+
             </Link>
           </Button>
         </Flex>

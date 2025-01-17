@@ -1,7 +1,7 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-import { Container, Flex, Heading } from "@chakra-ui/react";
+import { Container, Flex, Heading, Highlight } from "@chakra-ui/react";
 
 import { CreatePasteForm } from "@/pages/createPaste/ui/CreatePasteForm.tsx";
 import { useCreatePaste } from "@/pages/createPaste/api";
@@ -34,12 +34,13 @@ export const CreatePastePage = () => {
   return (
     <Flex alignItems={"center"} flexDirection={"column"} gap={4} justifyContent={"center"}>
       <Flex alignItems={"center"} justifyContent={"center"} maxWidth={"xl"} textAlign={"center"}>
-        <Heading size="5xl">Write your</Heading>
-        <Heading size="5xl" textStyle={"cyan"}>
-          code
+        <Heading size="3xl">
+          <Highlight query="code" styles={{ color: "blue.500" }}>
+            Write your code
+          </Highlight>
         </Heading>
       </Flex>
-      <Container height={"full"} mx={"auto"} px={"32"} width={"fit"}>
+      <Container mx={"auto"} px={"31"}>
         <CreatePasteForm onSubmit={handleSubmit} />
       </Container>
     </Flex>

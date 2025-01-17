@@ -38,7 +38,7 @@ export const CreatePasteForm = ({ onSubmit }: CreatePasteFormProps) => {
 
   return (
     <Flex asChild flexDirection={"column"} gap={4} p={6} rounded={"lg"} shadow={"lg"}>
-      <form className="light:bg-default-100 dark:bg-[#141414] rounded-lg shadow-lg p-6 flex flex-col gap-4">
+      <form className="light:bg-default-100 dark:bg-[#141414] rounded-lg shadow-lg flex flex-col gap-4">
         <Flex gap={4} mb={"4"} width={"full"}>
           {/*<Form.Item<CreatePasteSchema> required className={"flex-1 w-96"} name={"title"}>*/}
           <Field
@@ -46,7 +46,6 @@ export const CreatePasteForm = ({ onSubmit }: CreatePasteFormProps) => {
             flex={1}
             invalid={!!errors.title}
             label={"Title"}
-            width={"96"}
           >
             <Input
               {...register("title", { required: "Title is required" })}
@@ -90,7 +89,7 @@ export const CreatePasteForm = ({ onSubmit }: CreatePasteFormProps) => {
             />
           </Field>
         </Flex>
-        <Field height={"full"} mb={4} px={8} width={"full"}>
+        <Field height={"full"} mb={4} px={5} width={"full"}>
           <Controller
             control={control}
             name={"content"}
@@ -106,11 +105,11 @@ export const CreatePasteForm = ({ onSubmit }: CreatePasteFormProps) => {
             )}
           />
         </Field>
-        <Float justifyContent={"end"} mt={2}>
+        <Field alignItems={"end"}>
           <Button colorPalette={"blue"} px={6} onClick={() => handleSubmit(onSubmit)()}>
             Save Paste
           </Button>
-        </Float>
+        </Field>
       </form>
     </Flex>
   );

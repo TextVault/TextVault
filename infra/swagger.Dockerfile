@@ -6,4 +6,4 @@ COPY ./main.tsp ./
 
 RUN tsp compile main.tsp
 
-CMD ["npx", "scalar-cli", "serve", "./tsp-output/@typespec/openapi3/openapi.yaml", "--port", "8080", "--host", "0.0.0.0", "--cors", "*"]
+CMD ["scalar", "serve", "./tsp-output/@typespec/openapi3/openapi.yaml", "--port", "8080"]

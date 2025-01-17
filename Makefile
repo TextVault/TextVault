@@ -21,6 +21,8 @@ UID=$(shell id -u)
 compose:
 	docker compose -f infra/docker-compose.yaml up --build -d
 
+compose-down:
+	docker compose -f infra/docker-compose.yaml down
 build:
 	docker build -t ${FRONTEND_TAG} --target ${TARGET} -f infra/frontend.Dockerfile frontend
 	docker build -t ${BACKEND_TAG} --target ${TARGET} -f infra/backend.Dockerfile backend

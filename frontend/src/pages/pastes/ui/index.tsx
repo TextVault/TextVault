@@ -72,7 +72,7 @@ export const PastesPage = () => {
         ) : (
           <>
             <PastesTable handleDeletePaste={handleDeletePaste} pastes={pastes || []} />
-            <Flex justifyContent={"end"} mt={2}>
+            <Flex justifyContent={"center"} mt={2}>
               <PastesPagination count={pastes?.length || 0} page={1} pageSize={100} />
             </Flex>
           </>

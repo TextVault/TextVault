@@ -27,7 +27,7 @@ export const TextVaultEditor = ({
   };
 
   return (
-    <Container borderWidth={"1px"} height={"2xl"} minHeight={"md"} minWidth={"2xs"} width={"2xl"}>
+    <Container borderWidth={"1px"} height={"xl"} minHeight={"md"} minWidth={"4xl"}>
       {loading ? (
         <Skeleton borderColor={"gray.900"} borderRadius={"lg"} />
       ) : (
